@@ -29,11 +29,15 @@ public class NotificationInitSampleHelper extends IMNotification{
     public static void init(){
 		YWIMKit imKit = LoginSampleHelper.getInstance().getIMKit();
 		if (imKit != null){
-			imKit.setEnableNotification(true);//开启通知栏提示
-			imKit.setAppName("我的OpenIM");//通知栏显示的名称
-			imKit.setResId(R.drawable.aliwx_notification_bg);//通知栏icon
-//			Intent intent = new Intent(DemoApplication.getContext(), FragmentTabs.class);
-//			imKit.setNotificationIntent(intent); //通知栏点击跳转
+
+            //通知栏显示的名称，此方法已经废弃，请使用自定义方式，具体见当前文件的getAppName
+			//imKit.setAppName("我的OpenIM");
+
+            //此方法已经废弃,具体请见 当前文件的getNotificationIconResID
+			//imKit.setResId(R.drawable.aliwx_notification_bg);//通知栏icon
+
+            mNeedSound = (DemoSimpleKVStore.getNeedSound() == 1);
+            mNeedVibrator = (DemoSimpleKVStore.getNeedVibration() == 1);
 		}
 	}
 
@@ -119,10 +123,30 @@ public class NotificationInitSampleHelper extends IMNotification{
      */
     public Intent getCustomNotificationIntent(YWConversation conversation, YWMessage message, int totalUnReadCount) {
         //以下仅为示例代码，需要Intent开发者根据不同目的自己实现
-        Intent intent = new Intent(Intent.ACTION_MAIN);
-        intent.addCategory(Intent.CATEGORY_LAUNCHER);
-        intent.setClass(DemoApplication.getContext(), FragmentTabs.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        return intent;
+//        Intent intent = new Intent(Intent.ACTION_MAIN);
+//        intent.addCategory(Intent.CATEGORY_LAUNCHER);
+//        intent.setClass(DemoApplication.getContext(), FragmentTabs.class);
+//        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+//        return intent;
+
+        return null;
+    }
+
+    /**
+     * 获取通知栏图标Icon
+     * @return ResId
+     */
+    @Override
+    public int getNotificationIconResID() {
+        return R.drawable.aliwx_notification_bg;
+    }
+
+    /**
+     * 获取通知栏显示Title
+     * @return
+     */
+    @Override
+    public String getAppName() {
+        return "我的OpenIM";
     }
 }

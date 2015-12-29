@@ -17,6 +17,7 @@ import com.alibaba.mobileim.gingko.model.tribe.YWTribe;
 import com.alibaba.mobileim.gingko.model.tribe.YWTribeType;
 import com.alibaba.mobileim.tribe.IYWTribeService;
 import com.alibaba.mobileim.tribe.YWTribeCreationParam;
+import com.alibaba.mobileim.utility.IMPrefsTools;
 import com.alibaba.openIMUIDemo.R;
 import com.taobao.openimui.common.Notification;
 import com.taobao.openimui.sample.LoginSampleHelper;

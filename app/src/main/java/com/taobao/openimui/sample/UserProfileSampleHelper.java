@@ -12,6 +12,7 @@ import android.widget.Toast;
 import android.util.Log;
 
 import com.alibaba.mobileim.YWIMKit;
+import com.alibaba.mobileim.channel.util.WxLog;
 import com.alibaba.mobileim.channel.util.YWLog;
 import com.alibaba.mobileim.contact.IYWContact;
 import com.alibaba.mobileim.contact.IYWContactHeadClickCallback;
@@ -74,16 +75,19 @@ public class UserProfileSampleHelper {
 
     }
 
-    private static boolean enableUserProfile = true;
+    private static boolean enableUseLocalUserProfile = true;
 
     //初始化，建议放在登录之前
     public static void initProfileCallback() {
-        if (!enableUserProfile){
+        if (!enableUseLocalUserProfile){
             //目前SDK会自动获取导入到OpenIM的帐户昵称和头像，如果用户设置了回调，则SDK不会从服务器获取昵称和头像
             return;
         }
         init();
         YWIMKit imKit = LoginSampleHelper.getInstance().getIMKit();
+        if(imKit == null) {
+            return;
+        }
         IYWContactService contactManager = imKit.getIMCore().getContactService();
 
         //头像点击的回调（开发者可以按需设置）
@@ -95,29 +99,28 @@ public class UserProfileSampleHelper {
             }
         });
 
-        contactManager.setContactProfileCallback(new IYWContactProfileCallback() {
-
-            @Override
-            public Intent onShowProfileActivity(String arg0) {
-                // TODO Auto-generated method stub
-                return null;
-            }
-
-            //此方法会在SDK需要显示头像和昵称的时候，调用。同一个用户会被多次调用的情况。
-            //比如显示会话列表，显示聊天窗口时同一个用户都会被调用到。
-            @Override
-            public IYWContact onFetchContactInfo(String arg0) {
-                // TODO Auto-generated method stub
-                // 开发者需要根据不同的用户ID显示不同的昵称和头像。
-                try {
-                    String userid = arg0;
-                    return modifyUserInfo(userid);
-                } catch (Exception e) {
-
-                }
-                return null;
-            }
-        });
+        //设置用户信息回调，如果开发者已经把用户信息导入了IM服务器，则不需要再调用该方法，IMSDK会自动到IM服务器获取用户信息
+//        contactManager.setContactProfileCallback(new IYWContactProfileCallback() {
+//
+//            @Override
+//            public Intent onShowProfileActivity(String arg0) {
+//                return null;
+//            }
+//
+//            //此方法会在SDK需要显示头像和昵称的时候，调用。同一个用户会被多次调用的情况。
+//            //比如显示会话列表，显示聊天窗口时同一个用户都会被调用到。
+//            @Override
+//            public IYWContact onFetchContactInfo(String arg0) {
+//                // 开发者需要根据不同的用户ID显示不同的昵称和头像。
+//                try {
+//                    String userId = arg0;
+//                    return modifyUserInfo(userId);
+//                } catch (Exception e) {
+//
+//                }
+//                return null;
+//            }
+//        });
     }
 
     /**
@@ -125,41 +128,42 @@ public class UserProfileSampleHelper {
      * 头像支持本地路径和URL路径以及资源ID号。重要：头像图片最好小于10K，否则第一次加载可能会有图像压缩的延时,URL路径还有下载的延时
      *
      * 注意本地路径，需要以pic_1_开头
-     * @param userid   用户ID
+     * @param userId   用户ID
      * @return
      */
-    private static UserInfo modifyUserInfo(String userid) {
+    private static UserInfo modifyUserInfo(String userId) {
         long num;
         // 提取数字
-        String characs = Pattern.compile("[1-9]\\d*").matcher(userid).replaceAll("");
-        String shoreUserid = userid.substring(characs.length());
+        String characs = Pattern.compile("[1-9]\\d*").matcher(userId).replaceAll("");
+        String shortUserId = userId.substring(characs.length());
         //根据用户id末两位数字生成昵称和头像地址
-        YWLog.d(TAG, "short Userid = " + shoreUserid);
+        YWLog.d(TAG, "short userId = " + shortUserId);
         try {
-            num = Long.valueOf(shoreUserid);
+            num = Long.valueOf(shortUserId);
         } catch (Exception e) {
             //末尾不是数字，随机一个数字
             num = new Random().nextInt(20);
         }
         //模json的长度，来匹配json中储存的头像和昵称
         long modNum = num % 20;
-        UserInfo userInfo = mUserInfo.get(userid);
+        UserInfo userInfo = mUserInfo.get(userId);
         if (userInfo == null) {
-            if (userid.startsWith("百川测试111")) { //客服账号特殊处理
+            if (userId.startsWith("百川测试111")) { //客服账号特殊处理
                 userInfo = new UserInfo("openim官方客服", "pic_1_cs");
-            } else if (userid.startsWith("百川开发者大会小秘书")) {  //客服账号特殊处理
-                userInfo = new UserInfo(userid, "pic_1_bc");
-            } else if (userid.equals("云大旺") || userid.equals("云二旺") || userid.equals("云三旺") || userid.equals("云四旺") || userid.equals("云小旺")) {
+            } else if (userId.startsWith("百川开发者大会小秘书")) {  //客服账号特殊处理
+                userInfo = new UserInfo(userId, "pic_1_bc");
+            } else if (userId.equals("云大旺") || userId.equals("云二旺") || userId.equals("云三旺") || userId.equals("云四旺") || userId.equals("云小旺")) {
                 //支持资源ID号的方式
-                userInfo = new UserInfo(userid, R.drawable.pic_1_lg);
+                userInfo = new UserInfo(userId, R.drawable.pic_1_lg);
             } else {
                 // 为了方便体验，这里只做了一个简单的字符串连接作为用户的昵称。开发者可以根据自己的需要，用其他方式做映射（例如 app 的 profile服务器）
-                userInfo = new UserInfo("昵称-" + userid,
-                        /*new StringBuilder(users.get((int) modNum).getName()).append("_").append(WXUtil.getMD5Value(userid).substring(WXUtil.getMD5Value(userid).length() - 2).toUpperCase()).toString(),*/
-                        new StringBuilder(users.get((int) modNum).getAvatar()).toString());
+                userInfo = new UserInfo("昵称-" + userId,
+                        /*new StringBuilder(users.get((int) modNum).getName()).append("_").append(WXUtil.getMD5Value(userId).substring(WXUtil.getMD5Value(userId).length() - 2).toUpperCase()).toString(),*/
+                        new StringBuilder(users.get((int) modNum).getAvatar()).toString()
+                );
             }
 
-            mUserInfo.put(userid, userInfo);
+            mUserInfo.put(userId, userInfo);
         }
         return userInfo;
     }
@@ -187,29 +191,25 @@ public class UserProfileSampleHelper {
 
         @Override
         public String getAppKey() {
-            // TODO Auto-generated method stub
             return null;
         }
 
         @Override
         public String getAvatarPath() {
-            // TODO Auto-generated method stub
-            if (mLocalResId != 0){
+            if (mLocalResId != 0) {
                 return mLocalResId + "";
-            }else{
+            } else {
                 return mAvatarPath;
             }
         }
 
         @Override
         public String getShowName() {
-            // TODO Auto-generated method stub
             return mUserNick;
         }
 
         @Override
         public String getUserId() {
-            // TODO Auto-generated method stub
             return null;
         }
     }

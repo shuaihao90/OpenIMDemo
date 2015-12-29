@@ -21,7 +21,7 @@ public class InitHelper {
 
 		// ------[todo step1]-------------
 		//［IM定制初始化］，如果不需要定制化，可以去掉此方法的调用
-		//注意：由于增加全局初始化，该配置需最先执行
+		//todo 注意：由于增加全局初始化，该配置需最先执行！
 
 		CustomSampleHelper.initCustom();
 

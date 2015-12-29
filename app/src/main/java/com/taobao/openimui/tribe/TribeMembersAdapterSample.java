@@ -7,9 +7,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.alibaba.mobileim.WXAPI;
+import com.alibaba.mobileim.channel.util.WxLog;
 import com.alibaba.mobileim.contact.IYWContact;
 import com.alibaba.mobileim.contact.IYWContactProfileCallback;
 import com.alibaba.mobileim.contact.YWOnlineContact;
@@ -28,7 +30,7 @@ public class TribeMembersAdapterSample extends YWAsyncBaseAdapter {
     private LayoutInflater inflater;
     private YWContactHeadLoadHelper mContactHeadLoadHelper;
     private List<YWTribeMember> mList;
-
+    private int minRoleTVWidth;
 
     public TribeMembersAdapterSample(Activity context, List<YWTribeMember> list) {
         this.context = context;
@@ -44,7 +46,7 @@ public class TribeMembersAdapterSample extends YWAsyncBaseAdapter {
         TextView role;
     }
 
-    public void refreshData(List<YWTribeMember> list){
+    public void refreshData(List<YWTribeMember> list) {
         mList = list;
         notifyDataSetChangedWithAsyncLoad();
     }
@@ -74,6 +76,9 @@ public class TribeMembersAdapterSample extends YWAsyncBaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
+        RelativeLayout.LayoutParams roleParams;
+        RelativeLayout.LayoutParams headParams;
+        RelativeLayout.LayoutParams nickParams;
         ViewHolder holder = null;
         if (convertView == null) {
             convertView = inflater.inflate(R.layout.demo_tribe_members_item, null);
@@ -90,18 +95,19 @@ public class TribeMembersAdapterSample extends YWAsyncBaseAdapter {
             final YWTribeMember user = mList.get(position);
             if (user != null) {
                 String name = user.getShowName();
+
                 holder.headView.setTag(R.id.head, position);
                 IYWContactProfileCallback callback = WXAPI.getInstance()
                         .getContactProfileCallback();
                 if (callback != null && callback.onFetchContactInfo(user.getUserId()) != null) {
                     IYWContact contact = callback.onFetchContactInfo(user.getUserId());
                     if (contact != null) {
-                        mContactHeadLoadHelper.setHeadView(holder.headView, user.getUserId(),user.getAppKey(), true);
-                        if (TextUtils.isEmpty(name)) { //如果之前自定义了SHOW_NAME，那么优先使用之前定义的。
+                mContactHeadLoadHelper.setHeadView(holder.headView, user.getUserId(), user.getAppKey(), true);
+                if (TextUtils.isEmpty(name)) { //如果之前自定义了SHOW_NAME，那么优先使用之前定义的。
                             holder.nick.setText(contact.getShowName());
-                        } else {
-                            holder.nick.setText(name);
-                        }
+                } else {
+                    holder.nick.setText(name);
+                }
                     }
                 } else {
                     IIMContact  contact = (IIMContact)WXAPI.getInstance().getWXIMContact(user.getUserId());
@@ -111,19 +117,26 @@ public class TribeMembersAdapterSample extends YWAsyncBaseAdapter {
                 holder.nick.setVisibility(View.VISIBLE);
                 holder.role.setVisibility(View.VISIBLE);
                 int role = user.getTribeRole();
-                if (role == YWTribeMember.ROLE_HOST){
+                if (role == YWTribeMember.ROLE_HOST) {
                     holder.role.setText("群主");
                     holder.role.setBackgroundColor(context.getResources().getColor(R.color.tribe_host));
-                } else if (role == YWTribeMember.ROLE_MANAGER){
+                } else if (role == YWTribeMember.ROLE_MANAGER) {
                     holder.role.setText("管理员");
                     holder.role.setBackgroundColor(context.getResources().getColor(R.color.tribe_manager));
                 } else {
                     holder.role.setVisibility(View.GONE);
                 }
-
             }
 
         }
+        headParams = (RelativeLayout.LayoutParams)holder.headView.getLayoutParams();
+        roleParams = (RelativeLayout.LayoutParams)holder.role.getLayoutParams();
+        nickParams = (RelativeLayout.LayoutParams)holder.nick.getLayoutParams();
+        holder.nick.setMaxWidth(convertView.getWidth()
+                - (holder.headView.getWidth() + headParams.leftMargin + headParams.rightMargin)
+                - (holder.role.getWidth() + roleParams.leftMargin + roleParams.rightMargin)
+                - (nickParams.rightMargin + nickParams.leftMargin)
+        );
         return convertView;
     }
 
@@ -134,7 +147,7 @@ public class TribeMembersAdapterSample extends YWAsyncBaseAdapter {
 
     public static class ContactImpl implements IYWContact {
         private String userid = "", appKey = "", avatarPath = "", showName = "";
-        private int status= YWOnlineContact.ONLINESTATUS_ONLINE;
+        private int status = YWOnlineContact.ONLINESTATUS_ONLINE;
 
         public ContactImpl(String showName, String userid, String avatarPath, String signatures, String appKey) {
             this.showName = showName;
@@ -142,8 +155,8 @@ public class TribeMembersAdapterSample extends YWAsyncBaseAdapter {
             this.avatarPath = avatarPath;
             this.appKey = appKey;
         }
-        public void setOnlineStatus(int status){
-            this.status=status;
+        public void setOnlineStatus(int status) {
+            this.status = status;
         }
         @Override
         public String getUserId() {

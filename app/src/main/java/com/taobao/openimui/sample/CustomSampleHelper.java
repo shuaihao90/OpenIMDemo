@@ -14,8 +14,12 @@ public class CustomSampleHelper {
 
     public static void initCustom() {
 
-        //聊天界面相关自定义
+        //聊天界面相关自定义-------
+        //聊天界面的自定义风格1：［图片、文字小猪气泡］风格
         AdviceBinder.bindAdvice(PointCutEnum.CHATTING_FRAGMENT_UI_POINTCUT, ChattingUICustomSample.class);
+        //聊天界面的自定义风格2：［图片切割气泡、文字小猪气泡］风格
+//        AdviceBinder.bindAdvice(PointCutEnum.CHATTING_FRAGMENT_UI_POINTCUT, ChattingUICustomSample2.class);
+        //-----------------------
         //聊天业务相关
         AdviceBinder.bindAdvice(PointCutEnum.CHATTING_FRAGMENT_OPERATION_POINTCUT, ChattingOperationCustomSample.class);
         //会话列表UI相关

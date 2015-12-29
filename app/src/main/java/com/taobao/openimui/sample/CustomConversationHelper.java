@@ -5,6 +5,7 @@ import java.util.Date;
 import com.alibaba.mobileim.YWIMKit;
 import com.alibaba.mobileim.channel.util.WxLog;
 import com.alibaba.mobileim.conversation.IYWConversationService;
+import com.alibaba.mobileim.conversation.YWConversation;
 import com.alibaba.mobileim.conversation.YWCustomConversationUpdateModel;
 import com.alibaba.mobileim.lib.model.conversation.ConversationConstPrefix;
 
@@ -27,6 +28,11 @@ public class CustomConversationHelper {
 
         YWIMKit imKit = LoginSampleHelper.getInstance().getIMKit();
         IYWConversationService conversationService = imKit.getConversationService();
+        YWConversation conversation = conversationService.getCustomConversationByConversationId("id");
+        if (conversation != null){
+            conversation.getUnreadCount();
+        }
+
         if (conversationService.getCustomConversationByConversationId(conversationID) == null) {
             conversationService.updateOrCreateCustomConversation(mCustomConversation);
         }

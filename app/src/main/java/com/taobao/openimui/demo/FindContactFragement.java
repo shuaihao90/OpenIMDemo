@@ -169,29 +169,28 @@ public class FindContactFragement extends Fragment implements OnClickListener {
 
 						@Override
 						public void onSuccess(final Object... result) {
-							// TODO Auto-generated method stub
-							if (result != null  ) {
-                                List<YWProfileInfo> profileInfos = (List<YWProfileInfo>)(result[0]);
+                            if (result != null) {
+                                List<YWProfileInfo> profileInfos = (List<YWProfileInfo>) (result[0]);
 //                                 YWDBContactImpl mYWDBContactImpl =new YWDBContactImpl();
-                                if (profileInfos == null || profileInfos.isEmpty()){
+                                if (profileInfos == null || profileInfos.isEmpty()) {
                                     handleResult((List) result[0]);
                                     return;
                                 }
-								YWProfileInfo  mYWProfileInfo = profileInfos.get(0);
+                                YWProfileInfo mYWProfileInfo = profileInfos.get(0);
 //                                mYWDBContactImpl.email = mYWProfileInfo.email;
 //                                mYWDBContactImpl.icon = mYWProfileInfo.icon;
 //                                mYWDBContactImpl.mobile = mYWProfileInfo.mobile;
 //                                mYWDBContactImpl.nick = mYWProfileInfo.nick;
 //                                mYWDBContactImpl.taobaoId = mYWProfileInfo.taobaoId;
 //                                mYWDBContactImpl.userId = mYWProfileInfo.userId;
-								cancelProgress();
-								//修改hasContactAlready和contactsFromCache的Fragment生命周期缓存
-								hasContactAlready = checkIfHasContact(mYWProfileInfo);
-								showSearchResult(true,mYWProfileInfo);
-								} else {
-									handleResult((List) result[0]);
-								}
-							}
+                                cancelProgress();
+                                //修改hasContactAlready和contactsFromCache的Fragment生命周期缓存
+                                hasContactAlready = checkIfHasContact(mYWProfileInfo);
+                                showSearchResult(true, mYWProfileInfo);
+                            } else {
+                                handleResult((List) result[0]);
+                            }
+                        }
 
                         @Override
                         public void onError(int code, String info) {

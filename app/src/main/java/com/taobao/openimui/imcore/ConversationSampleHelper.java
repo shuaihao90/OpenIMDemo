@@ -1,9 +1,13 @@
 package com.taobao.openimui.imcore;
 
+import android.os.Handler;
+import android.os.Looper;
+
 import com.alibaba.mobileim.YWIMKit;
 import com.alibaba.mobileim.contact.IYWContact;
 import com.alibaba.mobileim.contact.YWContactFactory;
 import com.alibaba.mobileim.conversation.EServiceContact;
+import com.alibaba.mobileim.conversation.IYWConversationListener;
 import com.alibaba.mobileim.conversation.IYWConversationService;
 import com.alibaba.mobileim.conversation.YWConversation;
 import com.alibaba.mobileim.conversation.YWConversationBody;
@@ -30,7 +34,7 @@ public class ConversationSampleHelper {
 	 * 会话相关的操作统一通过IYWConversationService接口来进行操作
 	 * @return
 	 */
-	private IYWConversationService getConversationService(){
+	public IYWConversationService getConversationService(){
 		final YWIMKit imKit = LoginSampleHelper.getInstance().getIMKit();
 		return imKit.getConversationService();
 	}
@@ -165,25 +169,32 @@ public class ConversationSampleHelper {
         return conversation;
     }
 
-	/**
-	 * 获取某个单聊会话的用户ID号
-	 * @param cv
-	 * @return
-	 */
-	public String getTargetId(YWConversation cv){
-		if (cv == null || cv.getConversationType() != YWConversationType.P2P){
-			return "";
-		}
-		final YWConversationBody conversationBody = cv.getConversationBody();
-		if (conversationBody != null && conversationBody instanceof YWP2PConversationBody){
-			final YWP2PConversationBody p2pCVBody = (YWP2PConversationBody)cv.getConversationBody();
-			if (p2pCVBody.getContact() != null){
-				return p2pCVBody.getContact().getUserId();
-			}else{
-				return "";
+
+	private IYWConversationListener conversationListener = new IYWConversationListener() {
+		@Override
+		public void onItemUpdated() {
+
+			List<YWConversation> conversations = getAllConversations();
+
+			//这里进行自定义排序处理
+			if (conversations != null && !conversations.isEmpty()){
+
 			}
-		}else{
-			return "";
+
+			//或者移除conversation
+			//getConversationService().deleteConversation(YWConversation);
+
+			//通知更新
+			LoginSampleHelper.getInstance().getIMKit().getContactService().notifyContactProfileUpdate();
 		}
+	};
+
+
+	/**
+	 * 添加会话列表更改的监听
+	 */
+	public void initConversationListListener(){
+		getConversationService().removeConversationListener(conversationListener);
+		getConversationService().addConversationListener(conversationListener);
 	}
 }

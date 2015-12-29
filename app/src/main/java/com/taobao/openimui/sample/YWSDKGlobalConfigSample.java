@@ -71,4 +71,25 @@ public class YWSDKGlobalConfigSample extends YWSDKGlobalConfig {
     public boolean enableCompressContactHead() {
         return true;
     }
+
+    /**
+     *  聊天显示“对方正在输入中”状态的开关
+     *  默认：开启
+     * @return true： 开启 false： 关闭
+     */
+    @Override
+    public boolean enableInputStatus() {
+        return true;
+    }
+
+
+    /**
+     *  是否支持单聊消息的单条消息精确显示已读未读
+     *  默认：关闭
+     * @return true： 开启 false： 关闭
+     */
+    @Override
+    public boolean enableMsgReadStatus(){
+        return true;
+    }
 }

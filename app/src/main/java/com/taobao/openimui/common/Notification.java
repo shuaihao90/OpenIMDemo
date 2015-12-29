@@ -89,9 +89,8 @@ public class Notification {
 			
 			@Override
 			public void onClick(DialogInterface arg0, int arg1) {
-				// TODO Auto-generated method stub
-				
-			}
+
+            }
 		})
 		.create();
 	}

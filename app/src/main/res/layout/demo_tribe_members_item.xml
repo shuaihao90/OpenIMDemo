@@ -22,6 +22,7 @@
         android:layout_centerVertical="true"
         android:layout_toRightOf="@+id/head"
         android:layout_marginLeft="@dimen/aliwx_column_up_unit_margin"
+        android:layout_marginRight="@dimen/aliwx_column_up_unit_margin"
         android:text="nick" />
 
     <TextView
@@ -31,7 +32,9 @@
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
         android:layout_toRightOf="@+id/nick"
-        android:layout_marginLeft="@dimen/aliwx_column_top_margin"
+        android:gravity="center"
+        android:minEms="3"
+        android:layout_marginRight="@dimen/aliwx_column_up_unit_margin"
         android:padding="5dp"
         android:textColor="@color/aliwx_common_text_color" />
 

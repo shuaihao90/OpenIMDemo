@@ -42,6 +42,7 @@ public class TribeMembersActivity extends Activity implements AdapterView.OnItem
     private ListView mListView;
 
     private List<YWTribeMember> mList;
+    private YWTribeMember myself;
     private TribeMembersAdapterSample mAdapter;
     private TextView mAddTribeMembers;
     private Handler mHandler = new Handler(Looper.getMainLooper());
@@ -66,7 +67,7 @@ public class TribeMembersActivity extends Activity implements AdapterView.OnItem
         mPullToRefreshListView.setOnRefreshListener(new YWPullToRefreshBase.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                getTribeMembersFormLocal();
+                getTribeMembers();
             }
         });
         mListView = mPullToRefreshListView.getRefreshableView();
@@ -81,7 +82,7 @@ public class TribeMembersActivity extends Activity implements AdapterView.OnItem
         mIMKit = LoginSampleHelper.getInstance().getIMKit();
         mTribeService = mIMKit.getTribeService();
 
-        getTribeMembersFormLocal();
+        getTribeMembers();
 
         mAddTribeMembers = (TextView) findViewById(R.id.add_tribe_members);
         mAddTribeMembers.setOnClickListener(new View.OnClickListener() {
@@ -135,23 +136,20 @@ public class TribeMembersActivity extends Activity implements AdapterView.OnItem
         });
     }
 
-    private void getTribeMembersFormLocal() {
+    private void getTribeMembers() {
         mTribeService.getMembers(new IWxCallback() {
             @Override
             public void onSuccess(Object... result) {
-                mList.clear();
-                mList.addAll((List<YWTribeMember>) result[0]);
-                refreshAdapter();
-                mHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        mPullToRefreshListView.onRefreshComplete(false, true);
-                    }
-                });
+                onSuccessGetMembers((List<YWTribeMember>) result[0]);
+                //同时触发一下向服务器更新列表
+                getMembersFromServer();
             }
 
             @Override
             public void onError(int code, String info) {
+                if (isFinishing()){
+                    return;
+                }
                 Notification.showToastMsg(TribeMembersActivity.this, "error, code = " + code + ", info = " + info);
                 mHandler.post(new Runnable() {
                     @Override
@@ -166,6 +164,41 @@ public class TribeMembersActivity extends Activity implements AdapterView.OnItem
 
             }
         }, mTribeId);
+    }
+
+    private void getMembersFromServer(){
+        mTribeService.getMembersFromServer(new IWxCallback() {
+            @Override
+            public void onSuccess(Object... result) {
+                onSuccessGetMembers((List<YWTribeMember>) result[0]);
+            }
+
+            @Override
+            public void onError(int code, String info) {
+
+            }
+
+            @Override
+            public void onProgress(int progress) {
+
+            }
+        }, mTribeId);
+    }
+
+    private void onSuccessGetMembers(List<YWTribeMember> members){
+        if (members == null || isFinishing()){
+            return;
+        }
+
+        mList.clear();
+        mList.addAll(members);
+        refreshAdapter();
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                mPullToRefreshListView.onRefreshComplete(false, true);
+            }
+        });
     }
 
     /**
@@ -248,6 +281,7 @@ public class TribeMembersActivity extends Activity implements AdapterView.OnItem
         String loginUser = mIMKit.getIMCore().getLoginUserId();
         for (YWTribeMember member : mList) {
             if (member.getUserId().equals(loginUser)) {
+                myself = member;
                 role = member.getTribeRole();
             }
         }
@@ -283,6 +317,9 @@ public class TribeMembersActivity extends Activity implements AdapterView.OnItem
 
             @Override
             public void onUserQuit(YWTribe tribe, YWTribeMember user) {
+                if(user.equals(myself)) {
+                    mTribeService.clearTribeSystemMessages(tribe.getTribeId());
+                }
                 mList.remove(user);
                 refreshAdapter();
             }
@@ -290,11 +327,13 @@ public class TribeMembersActivity extends Activity implements AdapterView.OnItem
             @Override
             public void onUserRemoved(YWTribe tribe, YWTribeMember user) {
                 //只有被踢出群的用户会收到该回调，即如果收到该回调表示自己被踢出群了
+                mTribeService.clearTribeSystemMessages(tribe.getTribeId());
                 openTribeListFragment();
             }
 
             @Override
             public void onTribeDestroyed(YWTribe tribe) {
+                mTribeService.clearTribeSystemMessages(tribe.getTribeId());
                 openTribeListFragment();
             }
 

@@ -1,6 +1,6 @@
 <resources>
     <!-- Default screen margins, per the Android Design guidelines. -->
-	<dimen name="more_item_height">44dip</dimen>
+    <dimen name="more_item_height">44dip</dimen>
 
     <dimen name="audio_height">35dip</dimen>
     <dimen name="audio_minwidth">50dip</dimen>

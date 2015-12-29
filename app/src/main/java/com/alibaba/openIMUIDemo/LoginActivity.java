@@ -27,6 +27,7 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.alibaba.mobileim.YWChannel;
+import com.alibaba.mobileim.YWConstants;
 import com.alibaba.mobileim.YWIMKit;
 import com.alibaba.mobileim.channel.event.IWxCallback;
 import com.alibaba.mobileim.channel.util.YWLog;
@@ -40,6 +41,8 @@ import com.alibaba.mobileim.login.YWLoginState;
 import com.alibaba.mobileim.utility.IMNotificationUtils;
 import com.alibaba.mobileim.utility.IMPrefsTools;
 import com.alibaba.tcms.client.ServiceChooseHelper;
+import com.alibaba.tcms.env.EnvManager;
+import com.alibaba.tcms.env.TcmsEnvType;
 import com.alibaba.tcms.env.YWEnvManager;
 import com.alibaba.tcms.env.YWEnvType;
 import com.taobao.openimui.common.Notification;
@@ -115,7 +118,7 @@ public class LoginActivity extends Activity {
             }
         }else if(LoginSampleHelper.sEnvType == YWEnvType.TEST){
             if (TextUtils.isEmpty(userIdView.getText())){
-                userIdView.setText("测1");
+                userIdView.setText("openimtest20");
             }
             if (TextUtils.isEmpty(passwordView.getText())){
                 passwordView.setText("taobao1234");
@@ -197,7 +200,9 @@ public class LoginActivity extends Activity {
                 InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.hideSoftInputFromWindow(userIdView.getWindowToken(), 0);
                 imm.hideSoftInputFromWindow(passwordView.getWindowToken(), 0);
-
+                if (TextUtils.isEmpty(appKey)){
+                    LoginSampleHelper.APP_KEY= YWConstants.YWSDKAppKey;
+                }
                 init(userId.toString(), appKeyView.getText().toString());
                 progressBar.setVisibility(View.VISIBLE);
 
@@ -226,7 +231,6 @@ public class LoginActivity extends Activity {
 
                     @Override
                     public void onProgress(int arg0) {
-                        // TODO Auto-generated method stub
 
                     }
 
@@ -468,13 +472,18 @@ public class LoginActivity extends Activity {
                                         DialogInterface dialog,
                                         int which) {
 
+                                    TcmsEnvType tcmsEnvType = TcmsEnvType.ONLINE;
                                     if (which == 0) {
                                         envType = YWEnvType.ONLINE;
                                     } else if (which == 1) {
                                         envType = YWEnvType.PRE;
+                                        tcmsEnvType = TcmsEnvType.PRE;
                                     } else if (which == 2) {
                                         envType = YWEnvType.TEST;
+                                        tcmsEnvType = TcmsEnvType.TEST;
                                     }
+
+                                    EnvManager.getInstance().resetEnvType(DemoApplication.getContext(), tcmsEnvType);
                                     YWEnvManager.prepare(DemoApplication.getContext(), envType);
                                     IMNotificationUtils.showToast("切换环境，程序退出，请再次启动", LoginActivity.this);
                                     ServiceChooseHelper.exitService(LoginActivity.this);//xianzhen: service must restart too.

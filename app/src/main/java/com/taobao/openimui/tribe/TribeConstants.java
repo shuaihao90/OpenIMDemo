@@ -15,4 +15,5 @@ public class TribeConstants {
     public static final String TRIBE_EXPEL_MEMBER = "踢出群"; //踢出群
     public static final String TRIBE_CREATE = "tribe_create"; //创建群
     public static final String TRIBE_EDIT = "tribe_edit"; //编辑群信息
+    public static final String TRIBE_NICK = "tribe_nick";
 }

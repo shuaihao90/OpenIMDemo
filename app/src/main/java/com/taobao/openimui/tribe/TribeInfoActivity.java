@@ -1,6 +1,8 @@
 package com.taobao.openimui.tribe;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -8,28 +10,41 @@ import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.alibaba.mobileim.YWIMKit;
+import com.alibaba.mobileim.channel.constant.YWProfileSettingsConstants;
 import com.alibaba.mobileim.channel.event.IWxCallback;
+import com.alibaba.mobileim.channel.util.WxLog;
 import com.alibaba.mobileim.channel.util.YWLog;
+import com.alibaba.mobileim.conversation.IYWConversationService;
+import com.alibaba.mobileim.conversation.YWConversation;
+import com.alibaba.mobileim.fundamental.widget.WxAlertDialog;
+import com.alibaba.mobileim.gingko.model.settings.YWTribeSettingsModel;
 import com.alibaba.mobileim.gingko.model.tribe.YWTribe;
 import com.alibaba.mobileim.gingko.model.tribe.YWTribeMember;
 import com.alibaba.mobileim.gingko.presenter.tribe.IYWTribeChangeListener;
 import com.alibaba.mobileim.tribe.IYWTribeService;
+import com.alibaba.mobileim.utility.IMNotificationUtils;
 import com.alibaba.openIMUIDemo.R;
 import com.taobao.openimui.common.Notification;
 import com.taobao.openimui.demo.FragmentTabs;
 import com.taobao.openimui.sample.LoginSampleHelper;
+import com.taobao.openimui.sample.TribeMsgRecTypeSetActivity;
 
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * 该类演示了如何获取群消息接收状态以及对群消息接收状态的设置
+ */
 public class TribeInfoActivity extends Activity {
 
     private static final String TAG = "TribeInfoActivity";
-
+    private static final int SET_MSG_REC_TYPE_REQUEST_CODE = 10000;
+    private static final int EDIT_MY_TRIBE_NICK_REQUEST_CODE = 10001;
     private YWIMKit mIMKit;
     private IYWTribeService mTribeService;
     private YWTribe mTribe;
@@ -47,8 +62,25 @@ public class TribeInfoActivity extends Activity {
     private TextView mMemberCount;
     private TextView mQuiteTribe;
     private TextView mMangeTribeMembers;
+    private TextView mMyTribeNick;
     private RelativeLayout mMangeTribeMembersLayout;
     private RelativeLayout mEditTribeInfoLayout;
+    private RelativeLayout mEditMyTribeProfileLayout;
+    private RelativeLayout mEditPersonalSettings;
+
+    private RelativeLayout mTribeMsgRecTypeLayout;
+    private TextView mTribeMsgRecType;
+    private ImageView mAtMsgRecSwitch;
+
+    private TextView mCLearTribeMsgs;
+
+    private int mMsgRecFlag = YWProfileSettingsConstants.TRIBE_MSG_REJ;
+    private int mAtMsgRecFlag = YWProfileSettingsConstants.TRIBE_AT_MSG_REC;
+
+    private Handler uiHandler = new Handler(Looper.getMainLooper());
+
+    private IYWConversationService conversationService;
+    private YWConversation conversation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,10 +91,13 @@ public class TribeInfoActivity extends Activity {
         mTribeId = intent.getLongExtra(TribeConstants.TRIBE_ID, 0);
         mTribeOp = intent.getStringExtra(TribeConstants.TRIBE_OP);
 
-        initTribeChangedListener();
-        initView();
-        initTribeInfo();
+        conversationService = LoginSampleHelper.getInstance().getIMKit().getConversationService();
+        conversation = conversationService.getTribeConversation(mTribeId);
 
+        initTribeChangedListener();
+        initTribeInfo();
+        initView();
+        getTribeMsgRecSettings();
     }
 
     private void initTitle() {
@@ -117,16 +152,136 @@ public class TribeInfoActivity extends Activity {
             }
         });
 
+        mMyTribeNick = (TextView) findViewById(R.id.my_tribe_nick);
+        mMyTribeNick.setText(getLoginUserTribeNick());
+        mEditMyTribeProfileLayout = (RelativeLayout) findViewById(R.id.my_tribe_profile_layout);
+        mEditMyTribeProfileLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(TribeInfoActivity.this, EditMyTribeProfileActivity.class);
+                intent.putExtra(TribeConstants.TRIBE_ID, mTribeId);
+                intent.putExtra(TribeConstants.TRIBE_NICK, mMyTribeNick.getText());
+                startActivityForResult(intent, EDIT_MY_TRIBE_NICK_REQUEST_CODE);
+            }
+        });
+
+        mEditPersonalSettings = (RelativeLayout) findViewById(R.id.personal_tribe_setting_layout);
+        mEditPersonalSettings.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(TribeInfoActivity.this, TribePersonalSettingActivity.class);
+                intent.putExtra("tribeId", mTribeId);
+                startActivity(intent);
+            }
+        });
+
+        mTribeMsgRecTypeLayout = (RelativeLayout) findViewById(R.id.tribe_msg_rec_type_layout);
+        mTribeMsgRecType = (TextView) findViewById(R.id.tribe_msg_rec_type);
+        mAtMsgRecSwitch = (ImageView) findViewById(R.id.receive_tribe_at_msg);
+
+        mTribeMsgRecTypeLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = TribeMsgRecTypeSetActivity.getTribeMsgRecTypeSetActivityIntent(TribeInfoActivity.this, mMsgRecFlag);
+                startActivityForResult(intent, SET_MSG_REC_TYPE_REQUEST_CODE);
+            }
+        });
+
+        mAtMsgRecSwitch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mMsgRecFlag != YWProfileSettingsConstants.TRIBE_MSG_REJ) {
+                    IMNotificationUtils.showToast("接收群消息时不能屏蔽群@消息哦!", TribeInfoActivity.this);
+                } else {
+                    if (mAtMsgRecFlag == YWProfileSettingsConstants.TRIBE_AT_MSG_REC) {
+                        setMsgRecType(YWProfileSettingsConstants.TRIBE_MSG_REJ);
+                        setAtMsgRecType(YWProfileSettingsConstants.TRIBE_AT_MSG_REJ);
+                    } else {
+                        setAtMsgRecType(YWProfileSettingsConstants.TRIBE_AT_MSG_REC);
+                    }
+                }
+            }
+        });
+
+        mCLearTribeMsgs = (TextView) findViewById(R.id.clear_tribe_msg);
+        mCLearTribeMsgs.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                clearMsgRecord();
+            }
+        });
+
         mQuiteTribe = (TextView) findViewById(R.id.quite_tribe);
+    }
+
+    /**
+     * 群普通消息接收状态以及群@消息接收状态，SDK会在用户首次登录时或者清数据重登后自动获取并同步DB以及cache，
+     * 并且会在一天后重新获取，如果开发者想实施获取可以调用{@link com.alibaba.mobileim.tribe.YWTribeManager#getTribesMsgRecSettingsFromServer(List, int, IWxCallback)}
+     * 获取最新配置（如果考虑到用户会经常跨终端登录，为了多端同步，开发者需要自行根据情况考虑缓存策略）
+     */
+    private void initMsgRecFlags() {
+        if (mTribe == null) {
+            mTribe = mTribeService.getTribe(mTribeId);
+        }
+        if (mTribe != null) {
+            mMsgRecFlag = mTribe.getMsgRecType();
+            mAtMsgRecFlag = mTribe.getAtFlag();
+        }
+        if (mAtMsgRecFlag == YWProfileSettingsConstants.TRIBE_AT_MSG_REJ) {
+            mAtMsgRecSwitch.setImageResource(R.drawable.off_switch);
+        } else {
+            mAtMsgRecSwitch.setImageResource(R.drawable.on_switch);
+        }
+        setMsgRecTypeLabel(mMsgRecFlag);
+    }
+
+    private void setMsgRecTypeLabel(int flag) {
+        switch (flag) {
+            case YWProfileSettingsConstants.TRIBE_MSG_REC:
+                mTribeMsgRecType.setText("接收并提醒");
+                break;
+            case YWProfileSettingsConstants.TRIBE_MSG_REC_NOT_REMIND:
+                mTribeMsgRecType.setText("接收不提醒");
+                break;
+            case YWProfileSettingsConstants.TRIBE_MSG_REJ:
+                mTribeMsgRecType.setText("不接收");
+                break;
+        }
+    }
+
+    private void setMsgRecType(int msgRecType) {
+        switch (msgRecType) {
+            case YWProfileSettingsConstants.TRIBE_MSG_REC:
+                mTribeService.unblockTribe(mTribe, new TribeMsgRecSetCallback());
+                break;
+            case YWProfileSettingsConstants.TRIBE_MSG_REJ:
+                mTribeService.blockTribe(mTribe, new TribeMsgRecSetCallback());
+                break;
+            case YWProfileSettingsConstants.TRIBE_MSG_REC_NOT_REMIND:
+                mTribeService.receiveNotAlertTribeMsg(mTribe, new TribeMsgRecSetCallback());
+                break;
+        }
+    }
+
+    private void setAtMsgRecType(int atFlag) {
+        switch (atFlag) {
+            case YWProfileSettingsConstants.TRIBE_AT_MSG_REC:
+                mTribeService.unblockAtMessage(mTribe, new TribeMsgRecSetCallback());
+                break;
+            case YWProfileSettingsConstants.TRIBE_AT_MSG_REJ:
+                mTribeService.blockAtMessage(mTribe, new TribeMsgRecSetCallback());
+                break;
+        }
     }
 
     private void updateView() {
         mTribeName.setText(mTribe.getTribeName());
         mTribeDesc.setText(mTribe.getTribeNotice());
+        mMyTribeNick.setText(getLoginUserTribeNick());
         if (mTribeMemberCount > 0) {
             mMemberCount.setText(mTribeMemberCount + "人");
         }
-
+        initMsgRecFlags();
         if (getLoginUserRole() == YWTribeMember.ROLE_HOST) {
             mMangeTribeMembers.setText("群成员管理");
             mEditTribeInfoLayout.setVisibility(View.VISIBLE);
@@ -235,7 +390,7 @@ public class TribeInfoActivity extends Activity {
         }
     }
 
-    private void updateTribeMemberCount(){
+    private void updateTribeMemberCount() {
         if (mTribeMemberCount > 0) {
             mMemberCount.setText(mTribeMemberCount + "人");
         }
@@ -360,6 +515,26 @@ public class TribeInfoActivity extends Activity {
         return role;
     }
 
+    /**
+     * 获取登录用户的群昵称
+     *
+     * @return
+     */
+    private String getLoginUserTribeNick() {
+        if (mIMKit == null) {
+            mIMKit = LoginSampleHelper.getInstance().getIMKit();
+        }
+        String loginUser = mIMKit.getIMCore().getLoginUserId();
+        String userNick = loginUser;
+        for (YWTribeMember member : mList) {
+            if (member.getUserId().equals(loginUser)) {
+                userNick = member.getShowName();
+                break;
+            }
+        }
+        return userNick;
+    }
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -456,5 +631,132 @@ public class TribeInfoActivity extends Activity {
                 }
             }
         };
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode == Activity.RESULT_OK) {
+            if (requestCode == EDIT_MY_TRIBE_NICK_REQUEST_CODE) {
+                if (data != null) {
+                    String newUserNick = data.getStringExtra(TribeConstants.TRIBE_NICK);
+                    mMyTribeNick.setText(newUserNick);
+                }
+            } else if (requestCode == SET_MSG_REC_TYPE_REQUEST_CODE) {
+                int flag = data.getIntExtra("Flag", mTribe.getMsgRecType());
+                setMsgRecType(flag);
+            }
+        }
+        super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    /**
+     * 获取群消息接收状态设置值
+     */
+    private void getTribeMsgRecSettings() {
+        if (mTribe == null){
+            WxLog.w(TAG, "getTribeMsgRecSettings mTribe is null");
+            return;
+        }
+        List<Long> list = new ArrayList<Long>();
+        list.add(mTribe.getTribeId());
+        mTribeService.getTribesMsgRecSettingsFromServer(
+                list,
+                10,
+                new IWxCallback() {
+                    @Override
+                    public void onSuccess(Object... result) {
+                        if (result != null && result.length > 0) {
+                            ArrayList<YWTribeSettingsModel> models = (ArrayList<YWTribeSettingsModel>) result[0];
+                            YWTribeSettingsModel model = models.get(0);
+                            if(model.getTribeId() == mTribe.getTribeId()) {
+                                uiHandler.post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        initMsgRecFlags();
+                                    }
+                                });
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onError(int code, String info) {
+                        uiHandler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                initMsgRecFlags();
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void onProgress(int progress) {
+
+                    }
+                }
+        );
+    }
+
+    class TribeMsgRecSetCallback implements IWxCallback {
+
+        private Handler uiHandler = new Handler(Looper.getMainLooper());
+
+        public TribeMsgRecSetCallback() {
+
+        }
+
+        @Override
+        public void onError(final int code, final String info) {
+            uiHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    IMNotificationUtils.showToast("设置失败: code:" + code + " info:" + info, TribeInfoActivity.this);
+                }
+            });
+        }
+
+        @Override
+        public void onProgress(int progress) {
+
+        }
+
+        @Override
+        public void onSuccess(Object... result) {
+            mMsgRecFlag = mTribe.getMsgRecType();
+            mAtMsgRecFlag = mTribe.getAtFlag();
+            uiHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    initMsgRecFlags();
+                    IMNotificationUtils.showToast("设置成功: atFlag:" + mTribe.getAtFlag() + " flag:" + mTribe.getMsgRecType(), TribeInfoActivity.this);
+                }
+            });
+        }
+    }
+
+    protected void clearMsgRecord() {
+        String message = "清空的消息再次漫游时不会出现。你确定要清空聊天消息吗？";
+//        if (mConversation.getConversationType() == ConversationType.WxConversationType.Room) {
+//            message = getResources().getString(
+//                    R.string.clear_roomchatting_msg_confirm);
+//        }
+        AlertDialog.Builder builder = new WxAlertDialog.Builder(TribeInfoActivity.this);
+        builder.setMessage(message)
+                .setCancelable(false)
+                .setPositiveButton(R.string.confirm,
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                conversation.getMessageLoader().deleteAllMessage();
+                                IMNotificationUtils.showToast("记录已清空",
+                                        TribeInfoActivity.this);
+                            }
+                        })
+                .setNegativeButton(R.string.cancel,
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                dialog.dismiss();
+                            }
+                        });
+        builder.create().show();
     }
 }

@@ -32,11 +32,18 @@ import com.alibaba.openIMUIDemo.LoginActivity;
 import com.alibaba.openIMUIDemo.R;
 import com.taobao.openimui.common.Notification;
 import com.taobao.openimui.common.SimpleWebViewActivity;
+import com.taobao.openimui.sample.DemoSimpleKVStore;
 import com.taobao.openimui.sample.LoginSampleHelper;
 import com.taobao.openimui.sample.NotificationInitSampleHelper;
 import com.taobao.openimui.test.MultiAccountTestActivity;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -152,7 +159,9 @@ public class MoreFragment extends Fragment implements View.OnClickListener {
         quietRelativeLayout.setOnClickListener(this);
 
         soundCheckBox = (CheckBox) mView.findViewById(R.id.setting_sound_check);
+        soundCheckBox.setChecked(DemoSimpleKVStore.getNeedSound() == 1);
         vibrationCheckBox = (CheckBox) mView.findViewById(R.id.setting_vibration_check);
+        vibrationCheckBox.setChecked(DemoSimpleKVStore.getNeedVibration() == 1);
         quietCheckBox = (CheckBox) mView.findViewById(R.id.setting_quiet_check);
     }
 
@@ -200,12 +209,14 @@ public class MoreFragment extends Fragment implements View.OnClickListener {
                 oldCheck = soundCheckBox.isChecked();
                 mNotificationSettings.setNeedSound(!oldCheck);
                 soundCheckBox.setChecked(!oldCheck);
+                DemoSimpleKVStore.setNeedSound(!oldCheck? 1:0);
 
                 break;
             case R.id.setting_vibration_layout:
                 oldCheck = vibrationCheckBox.isChecked();
                 mNotificationSettings.setNeedVibrator(!oldCheck);
                 vibrationCheckBox.setChecked(!oldCheck);
+                DemoSimpleKVStore.setNeedVibration(!oldCheck ? 1 : 0);
                 break;
             case R.id.setting_quiet_layout:
                 oldCheck = quietCheckBox.isChecked();

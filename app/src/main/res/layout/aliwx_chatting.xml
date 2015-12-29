@@ -2,8 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/wx_chat_framelayout"
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    android:background="@color/aliwx_common_bg_color" >
+    android:layout_height="fill_parent">
 
     <ImageView
         android:id="@+id/wx_chat_bg_image"

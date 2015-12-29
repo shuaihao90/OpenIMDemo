@@ -22,7 +22,10 @@ import com.alibaba.mobileim.login.YWLoginCode;
 import com.alibaba.mobileim.login.YWLoginState;
 import com.alibaba.mobileim.login.YWPwdType;
 import com.alibaba.mobileim.utility.IMAutoLoginInfoStoreUtil;
+import com.alibaba.tcms.env.EnvManager;
+import com.alibaba.tcms.env.TcmsEnvType;
 import com.alibaba.openIMUIDemo.LoginActivity;
+import com.alibaba.tcms.env.YWEnvManager;
 import com.alibaba.tcms.env.YWEnvType;
 import com.taobao.openimui.demo.DemoApplication;
 
@@ -44,10 +47,10 @@ public class LoginSampleHelper {
     }
 
     // 应用APPKEY，这个APPKEY是申请应用时获取的
-    public static final String APP_KEY = "23015524";
+    public static  String APP_KEY = "23015524";
 
     //以下两个内容是测试环境使用，开发无需关注
-    public static final String APP_KEY_TEST = "60027574";  //60026702
+    public static final String APP_KEY_TEST = "4272";  //60026702
 
     public static YWEnvType sEnvType = YWEnvType.ONLINE;
 
@@ -89,18 +92,26 @@ public class LoginSampleHelper {
      */
     public void initSDK_Sample(Application context) {
         mApp = context;
+        sEnvType = YWEnvManager.getEnv(context);
 
-        //初始化IMKit，考虑到应用启动会自动登录的情况
+        //初始化IMKit
 		final String userId = IMAutoLoginInfoStoreUtil.getLoginUserId();
 		final String appkey = IMAutoLoginInfoStoreUtil.getAppkey();
 		if (!TextUtils.isEmpty(userId) && !TextUtils.isEmpty(appkey)){
-			//初始化imkit
+//		final String userId = IMAutoLoginInfoStoreUtil.getLoginUserId();
 			LoginSampleHelper.getInstance().initIMKit(userId, appkey);
-			//通知栏相关的初始化
+//		final String appkey = IMAutoLoginInfoStoreUtil.getAppkey();
 			NotificationInitSampleHelper.init();
 		}
+//		if (!TextUtils.isEmpty(userId) && !TextUtils.isEmpty(appkey)){
+        TcmsEnvType type = EnvManager.getInstance().getCurrentEnvType(mApp);
+        if(type==TcmsEnvType.ONLINE || type == TcmsEnvType.PRE){
+            YWAPI.init(mApp, APP_KEY);
+        }
+        else if(type==TcmsEnvType.TEST){
+            YWAPI.init(mApp, APP_KEY_TEST);
+        }
 
-        YWAPI.init(mApp, APP_KEY);
         //通知栏相关的初始化
         NotificationInitSampleHelper.init();
         initAutoLoginStateCallback();
@@ -157,7 +168,6 @@ public class LoginSampleHelper {
 
         @Override
         public void onReConnecting() {
-            // TODO Auto-generated method stub
 
         }
 
@@ -171,7 +181,6 @@ public class LoginSampleHelper {
 
         @Override
         public void onDisconnect(int arg0, String arg1) {
-            // TODO Auto-generated method stub
             if (arg0 == YWLoginCode.LOGON_FAIL_KICKOFF) {
                 sendAutoLoginState(YWLoginState.disconnect);
                 //在其它终端登录，当前用户被踢下线
@@ -200,19 +209,16 @@ public class LoginSampleHelper {
 
             @Override
             public void onSuccess(Object... arg0) {
-                // TODO Auto-generated method stub
 
             }
 
             @Override
             public void onProgress(int arg0) {
-                // TODO Auto-generated method stub
 
             }
 
             @Override
             public void onError(int arg0, String arg1) {
-                // TODO Auto-generated method stub
 
             }
         });

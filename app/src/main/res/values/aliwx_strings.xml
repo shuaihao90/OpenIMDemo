@@ -169,4 +169,10 @@
 
     <string name="aliwx_no_microphone_permission_alert_title">[录音权限]可能被禁止</string>
     <string name="aliwx_no_microphone_permission_alert_message">您好，应用的[录音权限]可能被禁止，请重新开启本应用的[录音权限]以发送[语音消息]~</string>
+
+    <string name="aliwx_send_original">原图</string>
+    <string name="aliwx_download_original">下载原图</string>
+    <string name="aliwx_download_original_with_size">下载原图(%1$s)</string>
+    <string name="aliwx_download_original_success">下载完成</string>
+    <string name="aliwx_download_original_fail">下载失败</string>
 </resources>

@@ -82,7 +82,7 @@
         <item name="aliwx_comment_right_bg">@drawable/aliwx_comment_r_orange_bg</item>
     </style>
 
-    <style name="Aliwx_WXAnimation.Activity" parent="@android:style/Animation">
+    <style name="Aliwx_WXAnimation.Activity" parent="@android:style/Animation.Activity">
         <item name="android:activityOpenEnterAnimation">@anim/aliwx_slide_right_in</item>
         <item name="android:activityOpenExitAnimation">@anim/aliwx_slide_left_out</item>
         <item name="android:activityCloseEnterAnimation">@anim/aliwx_slide_left_in</item>
@@ -115,6 +115,18 @@
         <item name="android:background">@null</item>
         <item name="android:includeFontPadding">false</item>
     </style>
+    <style name="aliwx_common_title_left_btn_shadow_white">
+        <item name="android:gravity">center</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:textColor">@drawable/aliwx_commont_title_btn_text</item>
+        <item name="android:textSize">@dimen/aliwx_common_text_size</item>
+        <item name="android:drawableLeft">@drawable/aliwx_common_back_btn_bg_white</item>
+        <item name="android:layout_marginLeft">5dip</item>
+        <item name="android:layout_alignParentLeft">true</item>
+        <item name="android:layout_centerVertical">true</item>
+        <item name="android:background">@null</item>
+        <item name="android:includeFontPadding">false</item>
+    </style>
 	<style name="aliwx_common_title_right_btn_shadow">
         <item name="android:gravity">center</item>
         <item name="android:singleLine">true</item>
@@ -127,6 +139,18 @@
         <item name="android:background">@null</item>
         
     </style>
+    <style name="aliwx_common_title_right_btn_shadow_white">
+        <item name="android:gravity">center</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:textColor">@color/aliwx_color_white</item>
+        <item name="android:textSize">@dimen/aliwx_common_text_size</item>
+        <item name="android:layout_alignParentRight">true</item>
+        <item name="android:layout_centerVertical">true</item>
+        <item name="android:includeFontPadding">false</item>
+        <item name="android:layout_marginRight">@dimen/aliwx_column_up_unit_margin</item>
+        <item name="android:background">@null</item>
+
+    </style>
     <style name="aliwx_common_title_text_shadow">
         <item name="android:gravity">center</item>
         <item name="android:singleLine">true</item>
@@ -136,7 +160,15 @@
         <item name="android:paddingLeft">@dimen/aliwx_title_middle_margin</item>
         <item name="android:paddingRight">@dimen/aliwx_title_middle_margin</item>
     </style>
-
+    <style name="aliwx_common_title_text_shadow_white">
+        <item name="android:gravity">center</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:ellipsize">middle</item>
+        <item name="android:textColor">@color/aliwx_color_white</item>
+        <item name="android:textSize">@dimen/aliwx_common_text_size</item>
+        <item name="android:paddingLeft">@dimen/aliwx_title_middle_margin</item>
+        <item name="android:paddingRight">@dimen/aliwx_title_middle_margin</item>
+    </style>
     <style name="aliwx_self_title_text_shadow">
         <item name="android:gravity">center</item>
         <item name="android:singleLine">true</item>

@@ -94,7 +94,7 @@ public class TribeAdapterSample extends YWAsyncBaseAdapter {
                 String name = tribe.getTribeName();
                 holder.headView.setTag(R.id.head, position);
                 if (tribe.getTribeType() == YWTribeType.CHATTING_TRIBE) {
-                    holder.headView.setImageResource(R.drawable.aliwx_tribe_head_default); //不用网络中获取到的图片，全部本地默认。
+                    mContactHeadLoadHelper.setTribeDefaultHeadView(holder.headView); //不用网络中获取到的图片，全部本地默认。
                 } else {
                     mContactHeadLoadHelper.setRoomDefaultHeadView(holder.headView);
                 }

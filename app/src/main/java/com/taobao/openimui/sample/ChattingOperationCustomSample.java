@@ -22,6 +22,7 @@ import com.alibaba.mobileim.aop.Pointcut;
 import com.alibaba.mobileim.aop.custom.IMChattingPageOperateion;
 import com.alibaba.mobileim.aop.model.GoodsInfo;
 import com.alibaba.mobileim.aop.model.ReplyBarItem;
+import com.alibaba.mobileim.channel.util.YWLog;
 import com.alibaba.mobileim.contact.IYWContact;
 import com.alibaba.mobileim.contact.IYWContactProfileCallback;
 import com.alibaba.mobileim.contact.IYWCrossContactProfileCallback;
@@ -35,12 +36,18 @@ import com.alibaba.mobileim.conversation.YWP2PConversationBody;
 import com.alibaba.mobileim.conversation.YWTribeConversationBody;
 import com.alibaba.mobileim.fundamental.widget.YWAlertDialog;
 import com.alibaba.mobileim.kit.common.IMUtility;
+import com.alibaba.mobileim.kit.contact.ContactHeadLoadHelper;
+import com.alibaba.mobileim.kit.contact.YWContactHeadLoadHelper;
+import com.alibaba.mobileim.kit.common.IMUtility;
 import com.alibaba.mobileim.kit.contact.YWContactHeadLoadHelper;
 import com.alibaba.openIMUIDemo.R;
 import com.taobao.openimui.demo.DemoApplication;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -52,7 +59,7 @@ import org.json.JSONObject;
  * <p/>
  * 另外需要在Application中绑定
  * AdviceBinder.bindAdvice(PointCutEnum.CHATTING_FRAGMENT_POINTCUT,
- * DemoChattingCustomTitleAdvice.class);
+ * ChattingOperationCustomSample.class);
  *
  * @author jing.huai
  */
@@ -74,7 +81,7 @@ public class ChattingOperationCustomSample extends IMChattingPageOperateion {
     public boolean onUrlClick(Fragment fragment, YWMessage message, String url,
                               YWConversation conversation) {
         // 仅处理单聊
-        if (!isP2PChat(conversation)&&!isShopChat(conversation)) {
+        if (!isP2PChat(conversation) && !isShopChat(conversation)) {
             return false;
         }
 
@@ -183,6 +190,7 @@ public class ChattingOperationCustomSample extends IMChattingPageOperateion {
     private boolean isP2PChat(YWConversation conversation) {
         return conversation.getConversationType() == YWConversationType.P2P;
     }
+
     private boolean isShopChat(YWConversation conversation) {
         return conversation.getConversationType() == YWConversationType.SHOP;
     }
@@ -245,16 +253,22 @@ public class ChattingOperationCustomSample extends IMChattingPageOperateion {
                         120.1422530000, "浙江省杭州市西湖区"), 120, null);
     }
 
+    /**
+     * 显示地理位置消息
+     * @param fragment
+     * @param message  地理位置消息
+     * @return
+     */
     @Override
     public View getCustomGeoMessageView(Fragment fragment, YWMessage message) {
 
         YWGeoMessageBody messageBody = (YWGeoMessageBody)message.getMessageBody();
         LinearLayout layout = (LinearLayout) View.inflate(
-                DemoApplication.getContext(),
-                R.layout.demo_geo_message_layout, null);
-        TextView textView = (TextView) layout.findViewById(R.id.content);
-        textView.setText(messageBody.getAddress());
-        return layout;
+				DemoApplication.getContext(),
+				R.layout.demo_geo_message_layout, null);
+		TextView textView = (TextView) layout.findViewById(R.id.content);
+		textView.setText(messageBody.getAddress());
+		return layout;
     }
 
     @Override
@@ -278,6 +292,7 @@ public class ChattingOperationCustomSample extends IMChattingPageOperateion {
         }
         return null;
     }
+
 
     /**
      * 不显示头像的自定义消息View
@@ -349,9 +364,10 @@ public class ChattingOperationCustomSample extends IMChattingPageOperateion {
     }
 
 
-
     @Override
     public boolean onMessageClick(Fragment fragment, YWMessage ywMessage) {
+//        Toast.makeText(DemoApplication.getContext(), "你点击了消息",
+//                Toast.LENGTH_SHORT).show();
         return false;
     }
 
@@ -375,7 +391,7 @@ public class ChattingOperationCustomSample extends IMChattingPageOperateion {
             return true;
         } else if (ywMessage.getSubType() == YWMessage.SUB_MSG_TYPE.IM_AUDIO) {
             String[] items = new String[1];
-            if (mUserInCallMode){ //当前为听筒模式
+            if (mUserInCallMode) { //当前为听筒模式
                 items[0] = "使用扬声器模式";
             } else { //当前为扬声器模式
                 items[0] = "使用听筒模式";
@@ -463,6 +479,7 @@ public class ChattingOperationCustomSample extends IMChattingPageOperateion {
         return null;
     }
 
+
     /**
      * 开发者可以根据用户操作设置该值
      */
@@ -470,6 +487,7 @@ public class ChattingOperationCustomSample extends IMChattingPageOperateion {
 
     /**
      * 是否使用听筒模式播放语音消息
+     *
      * @param fragment
      * @param message
      * @return true：使用听筒模式， false：使用扬声器模式

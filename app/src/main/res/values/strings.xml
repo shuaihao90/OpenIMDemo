@@ -7,7 +7,7 @@
 
     <string name="hello_blank_fragment">Hello blank fragment</string>
 
-	<string name="app_name">openIM</string>
+    <string name="app_name">openIM</string>
     <string name="quit_confirm">退出后您将收不到新消息通知，是否确认退出？</string>
     <string name="guest_login">账号不存在，是否以游客方式登录？</string>
     <string name="confirm">确定</string>
@@ -35,4 +35,20 @@
     <string name="profile_account">账 号: </string>
 
     <string name="title_activity_system_message">SystemMessageActivity</string>
+
+    <string-array name="pref_config_tcms_storage_titles">
+        <item>In Settings(public)</item>
+        <item>In externalStorage(public)</item>
+        <item>In preference(private)</item>
+    </string-array>
+    <string-array name="pref_config_tcms_storage_values">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+    </string-array>
+
+    <string name="pref_header_general">测试设置</string>
+    <string name="title_activity_contact_setting">ContactSettingActivity</string>
+    <string name="title_activity_tribe_msg_rec_type_set">TribeMsgRecTypeSetActivity</string>
+    
 </resources>

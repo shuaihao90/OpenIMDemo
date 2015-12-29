@@ -21,6 +21,7 @@
     <dimen name="aliwx_common_unit_margin">8dip</dimen>
     <dimen name="aliwx_common_two_unit_margin">16dip</dimen>
     <dimen name="aliwx_column_up_unit_margin">10dip</dimen>
+
     <dimen name="aliwx_column_top_margin">14dip</dimen>
     <dimen name="aliwx_base_edit_text_top_margin">30.6dip</dimen>
     <dimen name="aliwx_title_middle_margin">60dip</dimen>
@@ -37,6 +38,7 @@
 
     <!--  14年字体大小 -->
     <dimen name="aliwx_common_text_size">15sp</dimen>
+
     <dimen name="aliwx_common_head_size">35dip</dimen>
     <dimen name="aliwx_unread_text_size">10sp</dimen>
     <dimen name="aliwx_message_content_margin_right">65dip</dimen>
@@ -51,7 +53,7 @@
     <dimen name="aliwx_popup_height">300dip</dimen>
 
     <dimen name="aliwx_friend_alpha_height">25dp</dimen>
-    <dimen name="aliwx_friend_item_height">50dip</dimen>
+    <dimen name="aliwx_friend_item_height">60dip</dimen>
     <dimen name="aliwx_second_text_size">12sp</dimen>
     <dimen name="aliwx_common_checkbox_size">25dip</dimen>
     <dimen name="aliwx_search_btn_width">48dip</dimen>
@@ -70,4 +72,13 @@
 
     <dimen name="aliwx_friend_select_btn_width">100dip</dimen>
     <dimen name="aliwx_common_btn_height">35dip</dimen>
+
+    <dimen name="aliwx_enlarge_text_size">21sp</dimen>
+    <dimen name="aliwx_enlarged_text_view_padding">25dip</dimen>
+    <dimen name="aliwx_enlarged_text_view_padding_right">15dip</dimen>
+    <dimen name="aliwx_enlarged_text_smily_column_width">30dip</dimen>
+
+    <dimen name="aliwx_send_original_check_left_margin">15dip</dimen>
+    <dimen name="aliwx_send_original_check_right_margin">5dip</dimen>
+
 </resources>

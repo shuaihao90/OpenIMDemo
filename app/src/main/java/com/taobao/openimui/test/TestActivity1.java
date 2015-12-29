@@ -14,6 +14,6 @@ public class TestActivity1 extends TrackBaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_test_1);
         //设置当前页面的唯一标识，建议使用当前页面的类名
-        setYWTrackTitleAndUrl(TAG, null);
+        setYWTrackTitleAndUrl(TAG, "https://www.taobao.com/");
     }
 }

@@ -28,7 +28,6 @@
 
     <com.alibaba.mobileim.fundamental.widget.refreshlist.PullToRefreshDummyHeadListView
         android:id="@+id/aliwx_listview"
-        style="@style/aliwx_dividedListStyle"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:divider="@color/aliwx_column_bg_color_pressed"

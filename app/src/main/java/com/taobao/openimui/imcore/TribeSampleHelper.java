@@ -32,15 +32,13 @@ public class TribeSampleHelper {
 
 		@Override
 		public void onError(int arg0, String arg1) {
-			// TODO Auto-generated method stub
-			YWLog.e("TribeSampleHelper", "code=" + arg0 + " errInfo=" + arg1);
-		}
+            YWLog.e("TribeSampleHelper", "code=" + arg0 + " errInfo=" + arg1);
+        }
 
 		@Override
 		public void onProgress(int arg0) {
-			// TODO Auto-generated method stub
 
-		}
+        }
 	}
 
 	public static IYWTribeService getTribeService() {
@@ -123,10 +121,9 @@ public class TribeSampleHelper {
 
 			@Override
 			public void onSuccess(Object... arg0) {
-				// TODO Auto-generated method stub
-				YWTribe tribe = (YWTribe) arg0[0];
-				tribe.getTribeId();
-			}
+                YWTribe tribe = (YWTribe) arg0[0];
+                tribe.getTribeId();
+            }
 		}, tid);
 	}
 
@@ -147,11 +144,10 @@ public class TribeSampleHelper {
 
 			@Override
 			public void onSuccess(Object... arg0) {
-				// TODO Auto-generated method stub
-				@SuppressWarnings("unchecked")
-				List<YWTribeMember> memberList = (List<YWTribeMember>) arg0[0];
-				memberList.size();
-			}
+                @SuppressWarnings("unchecked")
+                List<YWTribeMember> memberList = (List<YWTribeMember>) arg0[0];
+                memberList.size();
+            }
 		}, tid);
 	}
 
@@ -169,9 +165,8 @@ public class TribeSampleHelper {
 
 			@Override
 			public void onSuccess(Object... arg0) {
-				// TODO Auto-generated method stub
-				// 成功就onSuccess，否则会调用onError
-			}
+                // 成功就onSuccess，否则会调用onError
+            }
 		}, tid);
 	}
 }

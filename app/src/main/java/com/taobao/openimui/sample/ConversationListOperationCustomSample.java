@@ -114,8 +114,11 @@ public class ConversationListOperationCustomSample extends IMConversationListOpe
     public ArrayList<String> getLongClickMenuList(Fragment fragment,
                                                   YWConversation conversation) {
         ArrayList<String> list = new ArrayList<String>();
-        list.add("test1");
-        list.add("test2");
+
+        //这里可以添加菜单项
+        //list.add("test1");
+        //list.add("test2");
+
         return list;
     }
 

@@ -1,7 +1,6 @@
 package com.taobao.openimui.demo;
 
 
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -371,7 +370,6 @@ public class ContactsFragment extends Fragment implements AdapterView.OnItemClic
 
 
 
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private void initChildListView() {
         //实例化listview
         mListView = mPullToRefreshListView.getRefreshableView();
@@ -454,10 +452,18 @@ public class ContactsFragment extends Fragment implements AdapterView.OnItemClic
     private void initAlphaContacts(final boolean forceViaNet,final boolean isViaNet){
         List<ComparableContact> localComparableContacts = new ArrayList<ComparableContact>();
         for (ContactImpl contact : mContacts) {
-            ComparableContact mComparableContact = new ComparableContact(contact.getShowName(), contact.getUserId(), contact.getAvatarPath(), contact.getAppKey());
+
+            if(contact==null)continue;
+
             IYWContactProfileCallback callback =mIMKit.getContactService()
                     .getContactProfileCallback();
             IYWContact mCustomIYWContact = callback.onFetchContactInfo(contact.getUserId());
+            ComparableContact mComparableContact;
+            if(TextUtils.isEmpty(contact.getAvatarPath()) && mCustomIYWContact != null && !TextUtils.isEmpty(mCustomIYWContact.getAvatarPath())) {
+                mComparableContact = new ComparableContact(contact.getShowName(), contact.getUserId(), mCustomIYWContact.getAvatarPath(), contact.getAppKey());
+            } else {
+                mComparableContact = new ComparableContact(contact.getShowName(), contact.getUserId(), contact.getAvatarPath(), contact.getAppKey());
+            }
 
             if(TextUtils.isEmpty(contact.getShowName())){
                 mComparableContact.setShowName(contact.getUserId());
@@ -491,7 +497,7 @@ public class ContactsFragment extends Fragment implements AdapterView.OnItemClic
                     }
                     //如果是网络获取的，则异步地同步到DB
                     if(isViaNet)
-                    asynchronousSyncNetToDB(mComparableContacts);
+                        asynchronousSyncNetToDB(mComparableContacts);
                     mFilter.clear();
                     //会用搜索的方式重新排列list，重排的结果不符合首字母索引的要求
                     mFilter.addSearchList(localContactList);
@@ -1017,7 +1023,7 @@ public class ContactsFragment extends Fragment implements AdapterView.OnItemClic
     public void judgeAppType(){
         String appKey = mIMKit.getIMCore().getAppKey();
         String prefix = AccountInfoTools.getPrefix(appKey);
-        if (TextUtils.isEmpty(prefix) || (!prefix.equals(AccountUtils.SITE_CNHHUPAN) && !prefix.equals(AccountUtils.SITE_CNTAOBAO))){
+        if (TextUtils.isEmpty(prefix) || (!prefix.equals(AccountUtils.getHupanPrefix()) && !prefix.equals(AccountUtils.SITE_CNTAOBAO))){
             appType=ISV;
         }else{
             appType= TB;
@@ -1069,7 +1075,7 @@ public class ContactsFragment extends Fragment implements AdapterView.OnItemClic
     }
 
 
-    //
+    //Fragment跳转相关
 
     public void replaceFragment(Fragment fragment, boolean addToBackStack) {
         FragmentTransaction transaction = getChildFragmentManager().beginTransaction();
@@ -1090,6 +1096,8 @@ public class ContactsFragment extends Fragment implements AdapterView.OnItemClic
         return mContactsAdapter;
     }
 
+
+    //邀请成为群成员
     public void initInviteTribeMemberList(){
         long tribeId = getArguments().getLong(TribeConstants.TRIBE_ID);
         IYWTribeService tribeService = mIMKit.getTribeService();

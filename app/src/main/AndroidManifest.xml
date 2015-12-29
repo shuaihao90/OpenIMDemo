@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.alibaba.openIMUIDemo"
-    xmlns:tools="http://schemas.android.com/tools">
+    android:versionCode="1"
+    android:versionName="1.0" >
+
+    <uses-sdk android:minSdkVersion="14" />
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -42,6 +46,7 @@
             android:theme="@style/Aliwx_ConverationStyle_default" />
         <activity
             android:name="com.alibaba.mobileim.ui.chat.MultiImageActivity"
+            android:hardwareAccelerated="false"
             android:launchMode="singleTop"
             android:screenOrientation="sensor"
             android:theme="@style/Aliwx_ContentOverlay_default"
@@ -86,17 +91,9 @@
             android:screenOrientation="portrait"
             android:theme="@style/MainTabStyle" />
         <activity
-            android:name="com.alibaba.mobileim.kit.imageviewer.ShowImageActivity"
-            android:launchMode="singleTop"
-            android:screenOrientation="sensor"
-            android:theme="@style/Aliwx_ContentOverlay_default"
-            android:windowSoftInputMode="adjustPan" />
-        <activity
             android:name="com.taobao.openimui.sample.ChattingFragmentSample"
             android:configChanges="keyboardHidden|orientation"
-            android:screenOrientation="portrait"
-            android:theme="@android:style/Theme.NoTitleBar"
-            android:windowSoftInputMode="stateHidden|adjustResize" />
+            android:screenOrientation="portrait" />
         <activity
             android:name="com.taobao.openimui.sample.ExpandableContactsActivitySample"
             android:configChanges="keyboardHidden|orientation"
@@ -128,17 +125,48 @@
             android:windowSoftInputMode="stateHidden|adjustResize" />
         <activity android:name="com.taobao.openimui.test.TestActivity1" />
         <activity android:name="com.taobao.openimui.test.TestActivity2" />
-        <activity android:name="com.taobao.openimui.tribe.TribeMembersActivity" />
-        <activity android:name="com.taobao.openimui.tribe.TribeInfoActivity" />
-        <activity android:name="com.taobao.openimui.tribe.SearchTribeActivity" />
+        <activity
+            android:name="com.taobao.openimui.tribe.TribeMembersActivity"
+            android:theme="@style/Aliwx_ContentOverlay_default" />
+        <activity
+            android:name="com.taobao.openimui.tribe.TribeInfoActivity"
+            android:theme="@style/Aliwx_ContentOverlay_default" />
+        <activity
+            android:name="com.taobao.openimui.tribe.SearchTribeActivity"
+            android:theme="@style/Aliwx_ContentOverlay_default" />
         <activity
             android:name="com.taobao.openimui.tribe.EditTribeInfoActivity"
-            android:windowSoftInputMode="stateHidden|adjustResize" />
-        <activity android:name="com.taobao.openimui.tribe.InviteTribeMemberActivity" />
-        <activity android:name="com.taobao.openimui.tribe.TribeSystemMessageActivity" >
-        </activity>
-        <activity android:name="com.taobao.openimui.sample.SelectContactToSendCardActivity" />
-        <!-- 漫游密码输入，三方用户不需要这个Activity -->
+            android:theme="@style/Aliwx_ContentOverlay_default"
+            android:windowSoftInputMode="stateHidden" />
+        <activity
+            android:name="com.taobao.openimui.tribe.InviteTribeMemberActivity"
+            android:theme="@style/Aliwx_ContentOverlay_default" />
+        <activity
+            android:name="com.taobao.openimui.tribe.TribeSystemMessageActivity"
+            android:theme="@style/Aliwx_ContentOverlay_default" />
+        <activity
+            android:name="com.taobao.openimui.tribe.EditMyTribeProfileActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/Aliwx_ContentOverlay_default" />
+        <activity
+            android:name="com.taobao.openimui.sample.SelectContactToSendCardActivity"
+            android:theme="@style/Aliwx_ContentOverlay_default" />
+        <activity
+            android:name="com.taobao.openimui.tribe.TribePersonalSettingActivity"
+            android:theme="@style/Aliwx_ContentOverlay_default" />
+        <activity
+            android:name="com.taobao.openimui.sample.ContactSettingActivity"
+            android:label="@string/title_activity_contact_setting" />
+        <activity
+            android:name="com.taobao.openimui.sample.TribeMsgRecTypeSetActivity"
+            android:label="@string/title_activity_tribe_msg_rec_type_set" />
+        <activity
+            android:name="com.alibaba.mobileim.kit.imageviewer.ShowImageActivity"
+            android:hardwareAccelerated="false"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait"
+            android:theme="@style/Aliwx_ContentOverlay_default"
+            android:windowSoftInputMode="adjustPan" /> <!-- 漫游密码输入，三方用户不需要这个Activity -->
         <activity
             android:name="com.alibaba.mobileim.kit.CloudPwdSettingHintActivity"
             android:configChanges="keyboardHidden|orientation"
@@ -146,6 +174,11 @@
             android:screenOrientation="portrait"
             android:theme="@style/Aliwx_ConverationStyle_default" /> <!-- 交易组件跳转窗口，即点击旺旺水滴跳OpenIM窗口 -->
         <activity android:name="com.alibaba.mobileim.login.WaitProgresssActivity" />
+        <activity
+            android:name="com.alibaba.mobileim.kit.chat.EnlargeChattingTextActivity"
+            android:configChanges="keyboardHidden|orientation"
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
+            android:windowSoftInputMode="stateHidden|adjustResize" />
         <activity
             android:name="com.alibaba.tcms.service.MonitorActivity"
             android:exported="true"
