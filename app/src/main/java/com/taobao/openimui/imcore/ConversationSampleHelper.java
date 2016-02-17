@@ -151,8 +151,11 @@ public class ConversationSampleHelper {
      */
     public YWConversation getCrossAppConversation(String userId, String targetAppkey){
         IYWConversationService service = getConversationService();
-        IYWContact contact = YWContactFactory.createAPPContact(userId, targetAppkey);
-        YWConversation conversation = service.getConversationCreater().createConversationIfNotExist(contact);
+        YWConversation conversation = service.getConversationByUserId(userId, targetAppkey);
+        if (conversation == null) {
+            IYWContact contact = YWContactFactory.createAPPContact(userId, targetAppkey);
+            conversation = service.getConversationCreater().createConversationIfNotExist(contact);
+        }
         return conversation;
     }
 
@@ -165,7 +168,10 @@ public class ConversationSampleHelper {
     public YWConversation getEServiceConversation(String userId, int groupId){
         IYWConversationService service = getConversationService();
         EServiceContact contact = new EServiceContact(userId, groupId);
-        YWConversation conversation = service.getConversationCreater().createConversation(contact);
+        YWConversation conversation  = service.getConversation(contact);
+        if (conversation == null) {
+            conversation = service.getConversationCreater().createConversation(contact);
+        }
         return conversation;
     }
 
@@ -197,4 +203,8 @@ public class ConversationSampleHelper {
 		getConversationService().removeConversationListener(conversationListener);
 		getConversationService().addConversationListener(conversationListener);
 	}
+
+    public void removeConversation(YWConversation conversation){
+        getConversationService().deleteConversation(conversation);
+    }
 }

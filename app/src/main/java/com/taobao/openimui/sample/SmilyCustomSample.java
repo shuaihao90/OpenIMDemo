@@ -1,5 +1,6 @@
 package com.taobao.openimui.sample;
 
+import com.alibaba.mobileim.fundamental.model.YWIMSmiley;
 import com.alibaba.mobileim.ui.chat.widget.YWSmilyMgr;
 import com.alibaba.openIMUIDemo.R;
 
@@ -19,6 +20,9 @@ import java.util.List;
  */
 public class SmilyCustomSample {
 
+    /**
+     * 该方式初始化表情会默认覆盖SDK自带表情包
+     */
     public static void init(){
         addSmilyMeanings();
         addShortCuts();
@@ -42,4 +46,103 @@ public class SmilyCustomSample {
         list.add(R.drawable.__leak_canary_icon);
         YWSmilyMgr.setSmilyRes(list);
     }
+
+    /**
+     * 添加新的表情包,该方法添加的表情是图片类型,开发者无需考虑多端解析问题
+     * @param smileyResArray
+     *          表情资源数组
+     * @param horizontalCount
+     *          水平展示个数
+     * @param verticalCount
+     *          垂直展示个数
+     * <br>
+     * 注:该方法添加的表情属于自定义Image表情,表情会当做图片发送
+     */
+    public static void addImageSmiley(int[] smileyResArray, int horizontalCount, int verticalCount) {
+        YWIMSmiley smiley = new YWIMSmiley(smileyResArray);
+        smiley.setHorizontalCount(horizontalCount);
+        smiley.setVerticalCount(verticalCount);
+        YWSmilyMgr.addNewSmiley(smiley);
+    }
+
+    /**
+     * 添加新的表情包,该方法会在原有表情包的基础上扩充(没有指定水平和垂直方向上的个数,则使用默认---水平:7 垂直:3)
+     * @param smileyResArray
+     *      drawable资源id数组
+     * @param shortCuts
+     *      快捷方式数组
+     * @param meanings
+     *      含义数组
+     * <br>
+     * 注:该方法添加的表情属于自定义Emoji表情,填加后的展示需要开发者自己考虑多端解析的实现
+     */
+    public static void addEmojiSmiley(int[] smileyResArray, String[] shortCuts, String[] meanings) {
+        YWIMSmiley smiley = new YWIMSmiley(smileyResArray, shortCuts, meanings);
+        YWSmilyMgr.addNewSmiley(smiley);
+    }
+
+    /**
+     * 添加新的表情包,该方法会在原有表情包的基础上扩充
+     * @param smileyResArray
+     *      drawable资源id数组
+     * @param shortCuts
+     *      快捷方式数组
+     * @param meanings
+     *      含义数组
+     * @param horizontalCount
+     *      水平方向上的展示个数
+     * @param verticalCount
+     *      垂直方向上的展示个数
+     *
+     * <br>
+     * 注:该方法添加的表情属于自定义Emoji表情,填加后的展示需要开发者自己考虑多端解析的实现
+     */
+    public static void addEmojiSmiley(int[] smileyResArray, String[] shortCuts, String[] meanings, int verticalCount, int horizontalCount) {
+        YWIMSmiley smiley = new YWIMSmiley(smileyResArray, shortCuts, meanings, horizontalCount, verticalCount);
+        YWSmilyMgr.addNewSmiley(smiley);
+    }
+
+    /**
+     * 导入新的表情包示例代码,开发者请调用{@link #addEmojiSmiley(int[], String[], String[])}
+     * 或者{@link #addEmojiSmiley(int[], String[], String[], int, int)}导入
+     */
+    public static void addNewEmojiSmiley() {
+//        YWIMSmiley smiley = new YWIMSmiley(smileResArray, shortCuts, meanings, 5, 2);
+//        YWSmilyMgr.addNewSmiley(smiley);
+    }
+
+    public static void addNewImageSmiley() {
+        addImageSmiley(smileResArray, 6, 3);
+    }
+
+    public static int[] smileResArray = new int[] {
+            R.drawable.aliwx_s001,
+            R.drawable.aliwx_s002,
+            R.drawable.aliwx_s003,
+            R.drawable.aliwx_s004,
+            R.drawable.aliwx_s005,
+            R.drawable.aliwx_s006,
+            R.drawable.aliwx_s007,
+            R.drawable.aliwx_s008,
+            R.drawable.aliwx_s009,
+            R.drawable.aliwx_s010,
+            R.drawable.aliwx_s011,
+            R.drawable.aliwx_s012,
+            R.drawable.aliwx_s013,
+            R.drawable.aliwx_s014,
+            R.drawable.aliwx_s015,
+            R.drawable.aliwx_s016,
+            R.drawable.aliwx_s017,
+            R.drawable.aliwx_s018,
+            R.drawable.aliwx_s019,
+            R.drawable.aliwx_s020};
+
+    private static String[] shortCuts = new String[] { "/:^_^", "/:^$^", "/:Q",
+            "/:815", "/:809", "/:^O^", "/:081", "/:087", "/:086", "/:H",
+            "/:012", "/:806", "/:b", "/:^x^", "/:814", "/:^W^", "/:080",
+            "/:066", "/:807", "/:805"};
+    private static String[] meanings = new String[] { "微笑", "害羞", "吐舌头", "偷笑",
+            "爱慕", "大笑", "跳舞", "飞吻", "安慰", "抱抱", "加油", "胜利", "强", "亲亲", "花痴",
+            "露齿笑", "查找", "呼叫", "算账", "财迷"};
+    
 }

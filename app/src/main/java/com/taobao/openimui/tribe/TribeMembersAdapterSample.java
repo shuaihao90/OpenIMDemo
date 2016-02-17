@@ -2,23 +2,22 @@ package com.taobao.openimui.tribe;
 
 import android.app.Activity;
 import android.content.Context;
-import android.text.TextUtils;
+import android.graphics.Point;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.alibaba.mobileim.WXAPI;
-import com.alibaba.mobileim.channel.util.WxLog;
 import com.alibaba.mobileim.contact.IYWContact;
-import com.alibaba.mobileim.contact.IYWContactProfileCallback;
+import com.alibaba.mobileim.contact.IYWContactService;
 import com.alibaba.mobileim.contact.YWOnlineContact;
 import com.alibaba.mobileim.gingko.model.tribe.YWTribeMember;
+import com.alibaba.mobileim.kit.common.IMUtility;
 import com.alibaba.mobileim.kit.common.YWAsyncBaseAdapter;
 import com.alibaba.mobileim.kit.contact.YWContactHeadLoadHelper;
-import com.alibaba.mobileim.lib.presenter.contact.IIMContact;
 import com.alibaba.openIMUIDemo.R;
 
 import java.util.List;
@@ -29,8 +28,9 @@ public class TribeMembersAdapterSample extends YWAsyncBaseAdapter {
     private int max_visible_item_count;
     private LayoutInflater inflater;
     private YWContactHeadLoadHelper mContactHeadLoadHelper;
+    private IYWContactService contactService;
     private List<YWTribeMember> mList;
-    private int minRoleTVWidth;
+    private int convertViewWidth;
 
     public TribeMembersAdapterSample(Activity context, List<YWTribeMember> list) {
         this.context = context;
@@ -97,23 +97,8 @@ public class TribeMembersAdapterSample extends YWAsyncBaseAdapter {
                 String name = user.getShowName();
 
                 holder.headView.setTag(R.id.head, position);
-                IYWContactProfileCallback callback = WXAPI.getInstance()
-                        .getContactProfileCallback();
-                if (callback != null && callback.onFetchContactInfo(user.getUserId()) != null) {
-                    IYWContact contact = callback.onFetchContactInfo(user.getUserId());
-                    if (contact != null) {
                 mContactHeadLoadHelper.setHeadView(holder.headView, user.getUserId(), user.getAppKey(), true);
-                if (TextUtils.isEmpty(name)) { //如果之前自定义了SHOW_NAME，那么优先使用之前定义的。
-                            holder.nick.setText(contact.getShowName());
-                } else {
-                    holder.nick.setText(name);
-                }
-                    }
-                } else {
-                    IIMContact  contact = (IIMContact)WXAPI.getInstance().getWXIMContact(user.getUserId());
-                    mContactHeadLoadHelper.setHeadView(holder.headView, user.getUserId(),user.getAppKey(), true);
-                    holder.nick.setText(name);
-                }
+                holder.nick.setText(IMUtility.getTribeShowName(user.getUserId(), user.getAppKey(), user.getTribeNick()));
                 holder.nick.setVisibility(View.VISIBLE);
                 holder.role.setVisibility(View.VISIBLE);
                 int role = user.getTribeRole();
@@ -129,14 +114,37 @@ public class TribeMembersAdapterSample extends YWAsyncBaseAdapter {
             }
 
         }
-        headParams = (RelativeLayout.LayoutParams)holder.headView.getLayoutParams();
-        roleParams = (RelativeLayout.LayoutParams)holder.role.getLayoutParams();
-        nickParams = (RelativeLayout.LayoutParams)holder.nick.getLayoutParams();
-        holder.nick.setMaxWidth(convertView.getWidth()
-                - (holder.headView.getWidth() + headParams.leftMargin + headParams.rightMargin)
-                - (holder.role.getWidth() + roleParams.leftMargin + roleParams.rightMargin)
-                - (nickParams.rightMargin + nickParams.leftMargin)
-        );
+
+        holder.headView.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
+        holder.role.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
+        holder.nick.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
+        try {
+            convertView.measure(View.MeasureSpec.AT_MOST, View.MeasureSpec.UNSPECIFIED);
+        } catch (NullPointerException e) {
+            //SDK <= 17时,RelativeLayout measure会发生空指针
+            if(convertViewWidth == 0) {
+                WindowManager manager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+                Point point = new Point();
+                manager.getDefaultDisplay().getSize(point);
+                convertViewWidth = point.x;
+            }
+        }
+        headParams = (RelativeLayout.LayoutParams) holder.headView.getLayoutParams();
+        roleParams = (RelativeLayout.LayoutParams) holder.role.getLayoutParams();
+        nickParams = (RelativeLayout.LayoutParams) holder.nick.getLayoutParams();
+        if(convertViewWidth == 0) {
+            convertViewWidth = convertView.getMeasuredWidth() == 0 ? convertView.getWidth() : convertView.getMeasuredWidth();
+        }
+        if(convertViewWidth
+                - (holder.headView.getMeasuredWidth() + headParams.leftMargin + headParams.rightMargin)
+                - (holder.role.getMeasuredWidth() + roleParams.leftMargin + roleParams.rightMargin)
+                - (nickParams.rightMargin + nickParams.leftMargin) > 0) {
+            holder.nick.setMaxWidth(convertViewWidth
+                    - (holder.headView.getMeasuredWidth() + headParams.leftMargin + headParams.rightMargin)
+                    - (holder.role.getMeasuredWidth() + roleParams.leftMargin + roleParams.rightMargin)
+                    - (nickParams.rightMargin + nickParams.leftMargin)
+            );
+        }
         return convertView;
     }
 
@@ -155,9 +163,11 @@ public class TribeMembersAdapterSample extends YWAsyncBaseAdapter {
             this.avatarPath = avatarPath;
             this.appKey = appKey;
         }
+
         public void setOnlineStatus(int status) {
             this.status = status;
         }
+
         @Override
         public String getUserId() {
             return userid;

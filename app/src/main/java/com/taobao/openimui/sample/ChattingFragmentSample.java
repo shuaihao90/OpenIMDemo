@@ -35,7 +35,7 @@ public class ChattingFragmentSample extends FragmentActivity{
 
     /**
      * 必须实现该方法，且该方法的实现必须跟以下示例代码完全一致！
-     * 因为拍照和选择照片的时候会回调该方法，如果没有按以下方式覆写该方法会导致拍照和选择照片时应用crash
+     * todo 因为拍照和选择照片的时候会回调该方法，如果没有按以下方式覆写该方法会导致拍照和选择照片时应用crash或拍照和选择照片无效!
      * @param arg0
      * @param arg1
      * @param arg2

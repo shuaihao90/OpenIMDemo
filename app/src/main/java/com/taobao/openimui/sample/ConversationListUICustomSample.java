@@ -10,26 +10,40 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.widget.Adapter;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.alibaba.mobileim.WXAPI;
+import com.alibaba.mobileim.YWAPI;
 import com.alibaba.mobileim.YWIMKit;
 import com.alibaba.mobileim.aop.Pointcut;
 import com.alibaba.mobileim.aop.custom.IMConversationListUI;
 import com.alibaba.mobileim.channel.util.WxLog;
+import com.alibaba.mobileim.channel.util.YWLog;
+import com.alibaba.mobileim.channel.util.YWLog;
 import com.alibaba.mobileim.contact.IYWContact;
 import com.alibaba.mobileim.conversation.YWConversation;
 import com.alibaba.mobileim.conversation.YWConversationType;
 import com.alibaba.mobileim.conversation.YWCustomConversationBody;
+import com.alibaba.mobileim.conversation.YWCustomConversationUpdateModel;
 import com.alibaba.mobileim.conversation.YWP2PConversationBody;
-import com.alibaba.mobileim.kit.common.IWwAsyncBaseAdapter;
+import com.alibaba.mobileim.conversation.YWTribeConversationBody;
+import com.alibaba.mobileim.gingko.model.tribe.YWTribe;
+import com.alibaba.mobileim.gingko.model.tribe.YWTribeType;
 import com.alibaba.mobileim.kit.contact.YWContactHeadLoadHelper;
 import com.alibaba.mobileim.lib.presenter.conversation.CustomViewConversation;
+import com.alibaba.mobileim.utility.IMSmilyCache;
 import com.alibaba.mobileim.utility.IMUtil;
+import com.alibaba.mobileim.utility.ResourceLoader;
 import com.alibaba.openIMUIDemo.R;
+import com.taobao.openimui.demo.FragmentTabs;
+
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * 最近会话界面的定制点(根据需要实现相应的接口来达到自定义会话列表界面)，不设置则使用openIM默认的实现
@@ -45,6 +59,8 @@ import com.alibaba.openIMUIDemo.R;
  * @author jing.huai
  */
 public class ConversationListUICustomSample extends IMConversationListUI {
+
+    private static final String TAG = "ConversationListUICustomSample";
 
     public ConversationListUICustomSample(Pointcut pointcut) {
         super(pointcut);
@@ -66,12 +82,25 @@ public class ConversationListUICustomSample extends IMConversationListUI {
                 .inflate(R.layout.demo_custom_conversation_title_bar, new RelativeLayout(context),false);
         customView.setBackgroundColor(Color.parseColor("#00b4ff"));
         TextView title = (TextView) customView.findViewById(R.id.title_txt);
-        title.setText("消息");
+        YWIMKit mIMKit = LoginSampleHelper.getInstance().getIMKit();
+
+        title.setText(mIMKit.getIMCore().getShowName());
         title.setTextColor(Color.WHITE);
+        final String loginUserId = LoginSampleHelper.getInstance().getIMKit().getIMCore().getLoginUserId();
+        final String appKey = LoginSampleHelper.getInstance().getIMKit().getIMCore().getAppKey();
+        if(TextUtils.isEmpty(loginUserId)||TextUtils.isEmpty(appKey)){
+            title.setText("未登录");
+        }
         title.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View arg0) {
-                Toast.makeText(context, "click ", Toast.LENGTH_SHORT).show();
+
+                if(TextUtils.isEmpty(loginUserId)||TextUtils.isEmpty(appKey)){
+                    Toast.makeText(context, "click ", Toast.LENGTH_SHORT).show();
+                }else{
+                    Toast.makeText(context, "click ("+" userid = "+loginUserId+" ,appKey = "+appKey+" )", Toast.LENGTH_SHORT).show();
+                }
+
 
             }
         });
@@ -106,11 +135,18 @@ public class ConversationListUICustomSample extends IMConversationListUI {
 
     @Override
     public boolean needHideNullNetWarn(Fragment fragment) {
-        return true;
+        return false;
     }
 
     /**
-     * 返回固定的群头像
+     * 是否支持下拉刷新
+     */
+    @Override
+    public  boolean getPullToRefreshEnabled(){
+        return true;
+    }
+     /**
+     * 返回默认的群头像
      * @param fragment
      * @param conversation
      * @return
@@ -221,8 +257,18 @@ public class ConversationListUICustomSample extends IMConversationListUI {
         return textView;
     }
 
+    /**
+     * 返回设置最近联系人界面背景的资源Id,返回0则使用默认值
+     * @return
+     *      资源Id
+     */
+    @Override
+    public int getCustomBackgroundResId() {
+        return 0;
+    }
 
     /*********** 以下是定制会话item view的示例代码 ***********/
+
 
     //自定义item view 种类数
     private final int typeCount = 2;
@@ -247,14 +293,18 @@ public class ConversationListUICustomSample extends IMConversationListUI {
      */
     @Override
     public int getCustomItemViewType(YWConversation conversation) {
+        //todo 若修改 YWConversationType.Tribe为自己type，SDK认为您要在｛@link #getCustomItemView｝中完全自定义，针对群的自定义，如getTribeConversationHead会失效。
+        //todo 该原则同样适用于 YWConversationType.P2P等其它内部类型，请知晓！
         if (conversation.getConversationType() == YWConversationType.Custom) {
             return type_1;
-        } else if (conversation.getConversationType() == YWConversationType.P2P){
+        } else if (conversation.getConversationType() == YWConversationType.Tribe){
             return type_2;
         }
         //这里必须调用基类方法返回！！
         return super.getCustomItemViewType(conversation);
     }
+
+
 
     /**
      * 根据viewType自定义item的view
@@ -268,6 +318,7 @@ public class ConversationListUICustomSample extends IMConversationListUI {
      */
     @Override
     public View getCustomItemView(Fragment fragment, YWConversation conversation, View convertView, int viewType, YWContactHeadLoadHelper headLoadHelper, ViewGroup parent) {
+        YWLog.i(TAG, "getCustomItemView, type = " + viewType);
         if (viewType == type_1){
             ViewHolder1 holder = null;
             if (convertView == null){
@@ -276,21 +327,43 @@ public class ConversationListUICustomSample extends IMConversationListUI {
                 convertView = inflater.inflate(R.layout.demo_custom_conversation_item_1, parent, false);
                 holder.head = (ImageView) convertView.findViewById(R.id.head);
                 holder.name = (TextView) convertView.findViewById(R.id.name);
+                holder.unread = (TextView) convertView.findViewById(R.id.unread);
                 convertView.setTag(holder);
+                YWLog.i(TAG, "convertView == null");
             } else {
                 holder = (ViewHolder1) convertView.getTag();
+                YWLog.i(TAG, "convertView != null");
             }
-
-            headLoadHelper.setHeadView(holder.head, conversation);
 
             String name = "";
             if (conversation.getConversationBody() instanceof YWCustomConversationBody) {
                 YWCustomConversationBody body = (YWCustomConversationBody) conversation.getConversationBody();
-                if (body.getIdentity().equals("myconversation")) {
+                String conversationId = body.getIdentity();
+                if(conversationId.equals(FragmentTabs.SYSTEM_TRIBE_CONVERSATION)){
+                    headLoadHelper.setTribeDefaultHeadView(holder.head);
                     name = "群系统消息";
+                }else  if(conversationId.equals(FragmentTabs.SYSTEM_FRIEND_REQ_CONVERSATION)){
+                    headLoadHelper.setDefaultHeadView(holder.head);
+                    name = "联系人系统消息";
+                }else{
+                    headLoadHelper.setDefaultHeadView(holder.head);
+                    name = "这是一个自定义会话";
                 }
             }
+            headLoadHelper.setHeadView(holder.head, conversation);
             holder.name.setText(name);
+
+            holder.unread.setVisibility(View.GONE);
+            int unreadCount = conversation.getUnreadCount();
+            if (unreadCount > 0) {
+                holder.unread.setVisibility(View.VISIBLE);
+                if (unreadCount > 99){
+                    holder.unread.setText("99+");
+                }else {
+                    holder.unread.setText(String.valueOf(unreadCount));
+                }
+            }
+
             return convertView;
         } else if (viewType == type_2){
             ViewHolder2 holder = null;
@@ -299,46 +372,125 @@ public class ConversationListUICustomSample extends IMConversationListUI {
                 holder = new ViewHolder2();
                 convertView = inflater.inflate(R.layout.demo_custom_conversation_item_2, parent, false);
                 holder.head = (ImageView) convertView.findViewById(R.id.head);
+                holder.unread = (TextView) convertView.findViewById(R.id.unread);
                 holder.name = (TextView) convertView.findViewById(R.id.name);
                 holder.content = (TextView) convertView.findViewById(R.id.content);
+                holder.atMsgNotify = (TextView) convertView.findViewById(R.id.at_msg_notify);
                 holder.time = (TextView) convertView.findViewById(R.id.time);
                 convertView.setTag(holder);
+                YWLog.i(TAG, "convertView == null");
             } else {
                 holder = (ViewHolder2)convertView.getTag();
+                YWLog.i(TAG, "convertView != null");
             }
-            YWIMKit imKit = LoginSampleHelper.getInstance().getIMKit();
-            YWContactHeadLoadHelper helper = new YWContactHeadLoadHelper(fragment.getActivity(), null);
-            helper.setHeadView(holder.head, conversation);
 
-            YWP2PConversationBody body = (YWP2PConversationBody) conversation.getConversationBody();
-            String name = body.getContact().getShowName();
-            if (TextUtils.isEmpty(name)){
-                IYWContact contact = imKit.getContactService().getContactProfileInfo(body.getContact().getUserId(), body.getContact().getAppKey());
-                if (contact != null && !TextUtils.isEmpty(contact.getShowName())) {
-                    name = contact.getShowName();
+            holder.unread.setVisibility(View.GONE);
+            int unreadCount = conversation.getUnreadCount();
+            if (unreadCount > 0) {
+                holder.unread.setVisibility(View.VISIBLE);
+                if (unreadCount > 99){
+                    holder.unread.setText("99+");
+                }else {
+                    holder.unread.setText(String.valueOf(unreadCount));
                 }
             }
-            if (TextUtils.isEmpty(name)){
-                name = body.getContact().getUserId();
-            }
+
+            YWTribeConversationBody body = (YWTribeConversationBody) conversation.getConversationBody();
+            YWTribe tribe = body.getTribe();
+            String name = tribe.getTribeName();
             holder.name.setText(name);
 
-            holder.content.setText(conversation.getLatestContent());
+            YWIMKit imKit = LoginSampleHelper.getInstance().getIMKit();
+            YWContactHeadLoadHelper helper = new YWContactHeadLoadHelper(fragment.getActivity(), null);
+            /**
+             * !!!注:这里是给群回话设置头像,这里直接设置的默认头像
+             * 如果想自由设置可以使用{@link YWContactHeadLoadHelper#setCustomHeadView(ImageView, int, String)},
+             * 该方法的第三个参数为加载头像的地址:可以是资源Id或者是sdcard上的file绝对路径以及网络url
+             */
+            if (tribe.getTribeType() == YWTribeType.CHATTING_TRIBE) {
+                helper.setTribeDefaultHeadView(holder.head);
+            } else {
+                helper.setRoomDefaultHeadView(holder.head);
+            }
+
+            //是否支持群@消息提醒
+            boolean isAtEnalbe = YWAPI.getYWSDKGlobalConfig().enableTheTribeAtRelatedCharacteristic();
+            if (isAtEnalbe){
+                if (conversation.hasUnreadAtMsg()) {
+                    holder.atMsgNotify.setVisibility(View.VISIBLE);
+                } else {
+                    holder.atMsgNotify.setVisibility(View.GONE);
+                }
+            } else {
+                holder.atMsgNotify.setVisibility(View.GONE);
+            }
+            String content = conversation.getLatestContent();
+            holder.content.setText(content);
+            setSmilyContent(fragment.getActivity(), content, holder);
             holder.time.setText(IMUtil.getFormatTime(conversation.getLatestTimeInMillisecond(), imKit.getIMCore().getServerTime()));
             return convertView;
         }
         return super.getCustomItemView(fragment, conversation, convertView, viewType, headLoadHelper, parent);
     }
 
+    private Map<String, CharSequence> mSmilyContentCache = new HashMap<String, CharSequence>();  //表情的本地缓存，加速读取速度用
+    IMSmilyCache smilyManager;
+    int defaultSmilySize = 0;
+    private int contentWidth;
+
+
+    private void setSmilyContent(Context context, String content, ViewHolder2 holder){
+        initSmilyManager(context);
+        if (content == null || holder.content.getPaint() == null) {
+            CharSequence charSequence = mSmilyContentCache.get(content);
+            if (charSequence != null) {
+                holder.content.setText(charSequence);
+            } else {
+                CharSequence smilySpanStr = smilyManager.getSmilySpan(context,
+                        content, defaultSmilySize, false);
+                mSmilyContentCache.put(content, smilySpanStr);
+                holder.content.setText(smilySpanStr);
+            }
+        } else {
+            CharSequence charSequence = mSmilyContentCache.get(content);
+            if (charSequence != null) {
+                holder.content.setText(charSequence);
+            } else {
+                CharSequence text = TextUtils.ellipsize(content,
+                        holder.content.getPaint(), contentWidth,
+                        holder.content.getEllipsize());
+                CharSequence smilySpanStr = smilyManager.getSmilySpan(context,
+                        String.valueOf(text), defaultSmilySize, false);
+                mSmilyContentCache.put(content, smilySpanStr);
+                holder.content.setText(smilySpanStr);
+            }
+        }
+    }
+
+    private void initSmilyManager(Context context){
+        if (smilyManager == null){
+            smilyManager = IMSmilyCache.getInstance();
+            defaultSmilySize = (int) context.getResources().getDimension(R.dimen.aliwx_smily_column_width);
+            int width = context.getResources().getDisplayMetrics().widthPixels;
+            contentWidth = width
+                    - context.getResources().getDimensionPixelSize(R.dimen.aliwx_column_up_unit_margin)*2
+                    - context.getResources().getDimensionPixelSize(R.dimen.aliwx_common_head_size)
+                    - context.getResources().getDimensionPixelSize(R.dimen.aliwx_message_content_margin_right);
+        }
+    }
+
     public class ViewHolder1{
         ImageView head;
         TextView name;
+        TextView unread;
     }
 
     public class ViewHolder2{
         ImageView head;
+        TextView unread;
         TextView name;
         TextView content;
+        TextView atMsgNotify;
         TextView time;
     }
 

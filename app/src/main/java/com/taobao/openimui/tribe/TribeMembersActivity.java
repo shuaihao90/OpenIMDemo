@@ -13,6 +13,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.alibaba.mobileim.YWIMKit;
+import com.alibaba.mobileim.channel.WxThreadHandler;
 import com.alibaba.mobileim.channel.event.IWxCallback;
 import com.alibaba.mobileim.fundamental.widget.YWAlertDialog;
 import com.alibaba.mobileim.fundamental.widget.refreshlist.PullToRefreshListView;
@@ -20,15 +21,20 @@ import com.alibaba.mobileim.fundamental.widget.refreshlist.YWPullToRefreshBase;
 import com.alibaba.mobileim.gingko.model.tribe.YWTribe;
 import com.alibaba.mobileim.gingko.model.tribe.YWTribeMember;
 import com.alibaba.mobileim.gingko.model.tribe.YWTribeType;
+import com.alibaba.mobileim.gingko.presenter.contact.IContactProfileUpdateListener;
+import com.alibaba.mobileim.gingko.presenter.contact.YWContactManagerImpl;
 import com.alibaba.mobileim.gingko.presenter.tribe.IYWTribeChangeListener;
 import com.alibaba.mobileim.tribe.IYWTribeService;
+import com.alibaba.mobileim.utility.IMConstants;
 import com.alibaba.openIMUIDemo.R;
 import com.taobao.openimui.common.Notification;
 import com.taobao.openimui.demo.FragmentTabs;
 import com.taobao.openimui.sample.LoginSampleHelper;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class TribeMembersActivity extends Activity implements AdapterView.OnItemLongClickListener {
 
@@ -41,12 +47,16 @@ public class TribeMembersActivity extends Activity implements AdapterView.OnItem
     private PullToRefreshListView mPullToRefreshListView;
     private ListView mListView;
 
-    private List<YWTribeMember> mList;
+    private List<YWTribeMember> mList= new ArrayList<YWTribeMember>();
     private YWTribeMember myself;
     private TribeMembersAdapterSample mAdapter;
     private TextView mAddTribeMembers;
     private Handler mHandler = new Handler(Looper.getMainLooper());
-
+    /**
+     * 用于筛选需要处理的ProfileUpdate通知
+     */
+    private Set<String> mContactUserIdSet = new HashSet<String>();
+    private IContactProfileUpdateListener mContactProfileUpdateListener;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -96,7 +106,8 @@ public class TribeMembersActivity extends Activity implements AdapterView.OnItem
         mAddTribeMembers.setVisibility(View.GONE);
 
         initTribeChangedListener();
-        mTribeService.addTribeListener(mTribeChangedListener);
+        initContactProfileUpdateListener();
+        addListeners();
     }
 
     private void initTitle() {
@@ -135,13 +146,64 @@ public class TribeMembersActivity extends Activity implements AdapterView.OnItem
             }
         });
     }
+    private void initContactProfileUpdateListener() {
+        mContactProfileUpdateListener = new IContactProfileUpdateListener() {
+            @Override
+            public void onProfileUpdate(final String userid, String appkey) {
+                if (mContactUserIdSet.contains(userid) && mAdapter != null) {
+                    WxThreadHandler.getInstance().getHandler().removeCallbacks(reindexRunnable);
+                    WxThreadHandler.getInstance().getHandler().postDelayed(reindexRunnable, IMConstants.UPDATE_SPELL_AND_INDEX_DELAY_MILLIS);
+                }
+            }
 
+            @Override
+            public void onProfileUpdate() {
+                //just empty
+            }
+        };
+
+    }
+    private void doPreloadContactProfiles(final List<YWTribeMember> members) {
+        int length = Math.min(members.size(), IMConstants.PRELOAD_PROFILE_NUM);
+        ArrayList<String> userIds = new ArrayList<String>();
+        String appkey = null;
+        for (int i = 0; i < length; i++) {
+            YWTribeMember ywTribeMember = members.get(i);
+            if (appkey == null)
+                appkey = ywTribeMember.getAppKey();
+            userIds.add(ywTribeMember.getUserId());
+        }
+        if (mIMKit!=null&&mIMKit.getContactService() != null)
+            mIMKit.getContactService().getContactProfileInfos(userIds, appkey);
+    }
+    private Runnable reindexRunnable = new Runnable() {
+        @Override
+        public void run() {
+            refreshAdapter();
+        }
+    };
+
+    public void addListeners() {
+        if(mIMKit!=null&&mIMKit.getContactService()!=null)
+            ((YWContactManagerImpl) mIMKit.getContactService()).addProfileUpdateListener(mContactProfileUpdateListener);
+        mTribeService.addTribeListener(mTribeChangedListener);
+
+    }
+
+    public void removeListeners() {
+        if(mIMKit!=null&&mIMKit.getContactService()!=null)
+            ((YWContactManagerImpl) mIMKit.getContactService()).removeProfileUpdateListener(mContactProfileUpdateListener);
+        mTribeService.removeTribeListener(mTribeChangedListener);
+
+    }
     private void getTribeMembers() {
         mTribeService.getMembers(new IWxCallback() {
             @Override
             public void onSuccess(Object... result) {
                 onSuccessGetMembers((List<YWTribeMember>) result[0]);
+                doPreloadContactProfiles((List<YWTribeMember>) result[0]);
                 //同时触发一下向服务器更新列表
+                //TODO 其实每次深登录后做一次查询就可以了
                 getMembersFromServer();
             }
 
@@ -192,6 +254,10 @@ public class TribeMembersActivity extends Activity implements AdapterView.OnItem
 
         mList.clear();
         mList.addAll(members);
+        mContactUserIdSet.clear();
+        for (YWTribeMember member : members) {
+            mContactUserIdSet.add(member.getUserId());
+        }
         refreshAdapter();
         mHandler.post(new Runnable() {
             @Override
@@ -218,7 +284,7 @@ public class TribeMembersActivity extends Activity implements AdapterView.OnItem
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        mTribeService.removeTribeListener(mTribeChangedListener);
+        removeListeners();
     }
 
     @Override

@@ -1,42 +1,46 @@
-package com.taobao.openimui.tribe;
+package com.taobao.openimui.contact;
 
+import android.app.Activity;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.alibaba.mobileim.contact.IYWContactService;
 import com.alibaba.mobileim.conversation.YWMessage;
-import com.alibaba.mobileim.gingko.model.tribe.YWTribe;
 import com.alibaba.mobileim.kit.common.YWAsyncBaseAdapter;
+import com.alibaba.mobileim.kit.contact.ContactHeadLoadHelper;
 import com.alibaba.mobileim.lib.model.message.YWSystemMessage;
 import com.alibaba.openIMUIDemo.R;
 import com.taobao.openimui.sample.LoginSampleHelper;
 
 import java.util.List;
 
-/**
- * Created by mayongge on 15-10-20.
- */
-public class TribeSystemMessageAdapter extends YWAsyncBaseAdapter {
+public class ContactSystemMessageAdapter extends YWAsyncBaseAdapter {
 
     private Context mContext;
     private LayoutInflater mInflater;
     private List<YWMessage> mMessageList;
+    private ContactHeadLoadHelper mContactHeadLoadHelper;
+    private String mAppKey;
 
-    public TribeSystemMessageAdapter(Context context, List<YWMessage> messages) {
+    public ContactSystemMessageAdapter(Context context, List<YWMessage> messages) {
         mContext = context;
         mMessageList = messages;
         mInflater = (LayoutInflater) context
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        mContactHeadLoadHelper = new ContactHeadLoadHelper((Activity)context, null);
+        mAppKey = LoginSampleHelper.getInstance().getIMKit().getIMCore().getAppKey();
     }
 
     private class ViewHolder {
-        TextView tribeName;
+        TextView showName;
         TextView message;
         TextView agreeButton;
-        TextView ignoreButton;
         TextView result;
+        ImageView head;
     }
 
     public void refreshData(List<YWMessage> list){
@@ -59,17 +63,21 @@ public class TribeSystemMessageAdapter extends YWAsyncBaseAdapter {
         return position;
     }
 
+    private IYWContactService getContactService(){
+        return LoginSampleHelper.getInstance().getIMKit().getContactService();
+    }
+
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         ViewHolder holder = null;
         if (convertView == null) {
-            convertView = mInflater.inflate(R.layout.demo_system_message_item, parent, false);
+            convertView = mInflater.inflate(R.layout.demo_contact_system_message_item, parent, false);
             holder = new ViewHolder();
-            holder.tribeName = (TextView) convertView.findViewById(R.id.tribe_name);
+            holder.showName = (TextView) convertView.findViewById(R.id.contact_title);
+            holder.head = (ImageView) convertView.findViewById(R.id.head);
             holder.message = (TextView) convertView.findViewById(R.id.invite_message);
             holder.agreeButton = (TextView) convertView
                     .findViewById(R.id.agree);
-            holder.ignoreButton = (TextView) convertView.findViewById(R.id.ignore);
             holder.result = (TextView) convertView.findViewById(R.id.result);
             convertView.setTag(holder);
         } else {
@@ -78,39 +86,32 @@ public class TribeSystemMessageAdapter extends YWAsyncBaseAdapter {
         if (mMessageList != null) {
             final YWMessage msg = mMessageList.get(position);
             final YWSystemMessage message = (YWSystemMessage) msg;
-            long tid = Long.valueOf(message.getAuthorId());
-            final YWTribe tribe = LoginSampleHelper.getInstance().getIMKit().getTribeService().getTribe(tid);
-            holder.tribeName.setText(tribe.getTribeName());
-            holder.message.setText(message.getMessageBody().getContent());
+            String authorUserId = message.getAuthorUserId();
+            String showName=authorUserId;
+            holder.showName.setText(showName+" 申请加你为好友");
+            holder.message.setText("备注: "+message.getMessageBody().getContent());
+            holder.agreeButton.setText("接受");
             holder.agreeButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    String recommender = message.getRecommender();
-                    ((TribeSystemMessageActivity)mContext).acceptToJoinTribe(msg);
-                }
-            });
-            holder.ignoreButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    ((TribeSystemMessageActivity)mContext).refuseToJoinTribe(msg);
+                    ((ContactSystemMessageActivity) mContext).acceptToBecomeFriend(msg);
                 }
             });
 
             if (message.isAccepted()){
                 holder.agreeButton.setVisibility(View.GONE);
-                holder.ignoreButton.setVisibility(View.GONE);
                 holder.result.setVisibility(View.VISIBLE);
-                holder.result.setText("已同意");
+                holder.result.setText("已添加");
             } else if (message.isIgnored()){
                 holder.agreeButton.setVisibility(View.GONE);
-                holder.ignoreButton.setVisibility(View.GONE);
                 holder.result.setVisibility(View.VISIBLE);
                 holder.result.setText("已忽略");
             } else {
                 holder.agreeButton.setVisibility(View.VISIBLE);
-                holder.ignoreButton.setVisibility(View.VISIBLE);
                 holder.result.setVisibility(View.GONE);
             }
+
+            mContactHeadLoadHelper.setHeadView(holder.head,authorUserId, mAppKey,true);
         }
         return convertView;
     }

@@ -18,6 +18,7 @@ import com.alibaba.mobileim.YWAPI;
 import com.alibaba.mobileim.YWIMKit;
 import com.alibaba.mobileim.channel.event.IWxCallback;
 import com.alibaba.mobileim.channel.util.YWLog;
+import com.alibaba.mobileim.conversation.EServiceContact;
 import com.alibaba.mobileim.fundamental.widget.YWAlertDialog;
 import com.alibaba.mobileim.login.YWLoginState;
 import com.alibaba.mobileim.ui.thridapp.ParamConstant;
@@ -229,6 +230,15 @@ public class MultiAccountTestActivity extends Activity{
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(MultiAccountTestActivity.this, TestActivity2.class);
+                startActivity(intent);
+            }
+        });
+
+        TextView test3 = (TextView) findViewById(R.id.open_conversation_activity);
+        test3.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = LoginSampleHelper.getInstance().getIMKit().getChattingActivityIntent("uid8");
                 startActivity(intent);
             }
         });

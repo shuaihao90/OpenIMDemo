@@ -105,6 +105,7 @@ public class MoreFragment extends Fragment implements View.OnClickListener {
         getBlackList.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                //获取黑名单列表
                 mIMKit.getIMCore().getContactManager().syncBlackContacts(new IWxCallback() {
                     @Override
                     public void onSuccess(Object... obj) {
@@ -119,6 +120,7 @@ public class MoreFragment extends Fragment implements View.OnClickListener {
                             Notification.showToastMsg(mContext, "黑名单列表为空~");
                         } else {
                             Notification.showToastMsg(mContext, builder.toString());
+                            WxLog.i(TAG, builder.toString());
                         }
                     }
 
@@ -134,6 +136,7 @@ public class MoreFragment extends Fragment implements View.OnClickListener {
                 });
             }
         });
+        initTest();
     }
 
     private void initTitle() {
@@ -148,6 +151,9 @@ public class MoreFragment extends Fragment implements View.OnClickListener {
         leftButton.setVisibility(View.GONE);
     }
 
+    /**
+     * 初始化消息提醒状态
+     */
     private void initNotificationSettings(){
         mNotificationSettings = new NotificationInitSampleHelper(null);
 

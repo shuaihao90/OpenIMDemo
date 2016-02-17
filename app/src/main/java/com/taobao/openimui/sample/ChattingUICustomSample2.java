@@ -22,6 +22,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.alibaba.mobileim.YWIMKit;
 import com.alibaba.mobileim.aop.Pointcut;
 import com.alibaba.mobileim.aop.custom.IMChattingPageUI;
 import com.alibaba.mobileim.channel.util.AccountUtils;
@@ -41,7 +42,9 @@ import com.taobao.openimui.tribe.TribeConstants;
 import com.taobao.openimui.tribe.TribeInfoActivity;
 
 /**
- * 聊天界面的自定义风格2：［图片切割气泡、文字小猪气泡］风格
+ * 聊天界面自带提供两种主题的自定义供用户方便的使用，用户可以通过{@link CustomSampleHelper｝中 实现 AdviceBinder.bindAdvice(PointCutEnum.CHATTING_FRAGMENT_UI_POINTCUT, ChattingUICustomSample2.class);
+ * 使用该主题的聊天界面自定义风格：［图片切割气泡、文字小猪气泡］风格
+ * todo 聊天界面的自定义风格2：［图片切割气泡、文字小猪气泡］风格
  * @author shuheng
  */
 public class ChattingUICustomSample2 extends IMChattingPageUI {
@@ -250,7 +253,9 @@ public class ChattingUICustomSample2 extends IMChattingPageUI {
             if (!TextUtils.isEmpty(conversationBody.getContact().getShowName())) {
                 title = conversationBody.getContact().getShowName();
             } else {
-                IYWContact contact = IMUtility.getContactProfileInfo(conversationBody.getContact().getUserId(), conversationBody.getContact().getAppKey());
+
+                YWIMKit imKit = LoginSampleHelper.getInstance().getIMKit();
+                IYWContact contact = imKit.getContactService().getContactProfileInfo(conversationBody.getContact().getUserId(), conversationBody.getContact().getAppKey());
                 //生成showName，According to id。
 
                 if (contact != null && !TextUtils.isEmpty(contact.getShowName())) {

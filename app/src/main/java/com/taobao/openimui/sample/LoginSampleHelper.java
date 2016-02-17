@@ -7,27 +7,39 @@ import android.text.TextUtils;
 import android.widget.Toast;
 
 import com.alibaba.mobileim.IYWLoginService;
+import com.alibaba.mobileim.IYWP2PPushListener;
+import com.alibaba.mobileim.IYWTribePushListener;
 import com.alibaba.mobileim.YWAPI;
 import com.alibaba.mobileim.YWChannel;
+import com.alibaba.mobileim.YWConstants;
 import com.alibaba.mobileim.YWIMCore;
 import com.alibaba.mobileim.YWIMKit;
 import com.alibaba.mobileim.YWLoginParam;
 import com.alibaba.mobileim.channel.LoginParam;
 import com.alibaba.mobileim.channel.event.IWxCallback;
 import com.alibaba.mobileim.channel.util.YWLog;
+import com.alibaba.mobileim.contact.IYWContact;
+import com.alibaba.mobileim.conversation.IYWConversationService;
+import com.alibaba.mobileim.conversation.YWCustomMessageBody;
+import com.alibaba.mobileim.conversation.YWMessage;
 import com.alibaba.mobileim.gingko.model.tribe.YWTribe;
 import com.alibaba.mobileim.gingko.model.tribe.YWTribeMember;
 import com.alibaba.mobileim.login.IYWConnectionListener;
 import com.alibaba.mobileim.login.YWLoginCode;
 import com.alibaba.mobileim.login.YWLoginState;
 import com.alibaba.mobileim.login.YWPwdType;
+import com.alibaba.mobileim.ui.chat.widget.YWSmilyMgr;
 import com.alibaba.mobileim.utility.IMAutoLoginInfoStoreUtil;
 import com.alibaba.tcms.env.EnvManager;
 import com.alibaba.tcms.env.TcmsEnvType;
 import com.alibaba.openIMUIDemo.LoginActivity;
 import com.alibaba.tcms.env.YWEnvManager;
 import com.alibaba.tcms.env.YWEnvType;
+import com.taobao.openimui.common.Notification;
 import com.taobao.openimui.demo.DemoApplication;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -73,6 +85,7 @@ public class LoginSampleHelper {
     public void initIMKit(String userId, String appKey) {
         mIMKit = YWAPI.getIMKitInstance(userId.toString(), appKey);
         addConnectionListener();
+        addPushMessageListener();
     }
 
     private YWLoginState mAutoLoginState = YWLoginState.idle;
@@ -115,6 +128,20 @@ public class LoginSampleHelper {
         //通知栏相关的初始化
         NotificationInitSampleHelper.init();
         initAutoLoginStateCallback();
+
+
+        //添加自定义表情的初始化
+        YWSmilyMgr.setSmilyInitNotify(new YWSmilyMgr.SmilyInitNotify() {
+            @Override
+            public void onDefaultSmilyInitOk() {
+                SmilyCustomSample.addNewEmojiSmiley();
+                SmilyCustomSample.addNewImageSmiley();
+
+                //最后要清空通知，防止memory leak
+                YWSmilyMgr.setSmilyInitNotify(null);
+            }
+        });
+
     }
 
     //将自动登录的状态广播出去
@@ -143,7 +170,8 @@ public class LoginSampleHelper {
 
         YWLoginParam loginParam = YWLoginParam.createLoginParam(userId,
                 password);
-        if (TextUtils.isEmpty(appKey)) {
+        if (TextUtils.isEmpty(appKey) || appKey.equals(YWConstants.YWSDKAppKey)
+                || appKey.equals(YWConstants.YWSDKAppKeyCnHupan)) {
             loginParam.setServerType(LoginParam.ACCOUNTTYPE_WANGXIN);
             loginParam.setPwdType(YWPwdType.pwd);
         }
@@ -193,6 +221,54 @@ public class LoginSampleHelper {
             }
         }
     }
+
+    /**
+     * 添加新消息到达监听，该监听应该在登录之前调用以保证登录后可以及时收到消息
+     */
+    private void addPushMessageListener(){
+        if (mIMKit == null) {
+            return;
+        }
+
+        IYWConversationService conversationService = mIMKit.getConversationService();
+        //添加单聊消息监听，先删除再添加，以免多次添加该监听
+        conversationService.removeP2PPushListener(mP2PListener);
+        conversationService.addP2PPushListener(mP2PListener);
+
+        //添加群聊消息监听，先删除再添加，以免多次添加该监听
+        conversationService.removeTribePushListener(mTribeListener);
+        conversationService.addTribePushListener(mTribeListener);
+    }
+
+    private IYWP2PPushListener mP2PListener = new IYWP2PPushListener() {
+        @Override
+        public void onPushMessage(IYWContact contact, YWMessage message) {
+            if (message.getSubType() == YWMessage.SUB_MSG_TYPE.IM_P2P_CUS){
+                if (message.getMessageBody() instanceof YWCustomMessageBody) {
+                    YWCustomMessageBody messageBody = (YWCustomMessageBody) message.getMessageBody();
+                    if (messageBody.getTransparentFlag() == 1) {
+                        String content = messageBody.getContent();
+                        try {
+                            JSONObject object = new JSONObject(content);
+                            if (object.has("text")){
+                                String text = object.getString("text");
+                                Notification.showToastMsgLong(DemoApplication.getContext(), "透传消息，content = " + text);
+                            }
+                        } catch (JSONException e){
+
+                        }
+                    }
+                }
+            }
+        }
+    };
+
+    private IYWTribePushListener mTribeListener = new IYWTribePushListener() {
+        @Override
+        public void onPushMessage(YWTribe tribe, YWMessage message) {
+            //TODO 收到群消息
+        }
+    };
 
     /**
      * 登出

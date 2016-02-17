@@ -2,11 +2,12 @@ package com.taobao.openimui.demo;
 
 import android.app.Application;
 import android.content.Context;
+import android.support.multidex.MultiDexApplication;
 
 import com.alibaba.wxlib.util.SysUtil;
 import com.taobao.openimui.sample.InitHelper;
 
-public class DemoApplication extends Application {
+public class DemoApplication extends MultiDexApplication {
 	//云旺OpenIM的DEMO用到的Application上下文实例
 	private static Context sContext;
 	public static Context getContext(){
@@ -17,17 +18,22 @@ public class DemoApplication extends Application {
 	public void onCreate() {
 		super.onCreate();
 
-		//Application.onCreate中，首先执行这部分代码, 因为，如果在":TCMSSevice"进程中，无需进行openIM和app业务的初始化，以节省内存
-		//todo 特别注意:这段代码不能封装到其他方法中，必须在onCreate顶层代码中!
-		//以下代码固定在此处，不要改动
-		SysUtil.setApplication(this);
-		if(SysUtil.isTCMSServiceProcess(this)){
-			return;  //todo 特别注意：此处return是退出onCreate函数，因此不能封装到其他任何方法中!
+		//todo Application.onCreate中，首先执行这部分代码，以下代码固定在此处，不要改动，这里return是为了退出Application.onCreate！！！
+		if(mustRunFirstInsideApplicationOnCreate()){
+			//todo 如果在":TCMSSevice"进程中，无需进行openIM和app业务的初始化，以节省内存
+			return;
 		}
-		//以上代码固定在这个位置，不要改动
 
-		sContext = getApplicationContext();
 		//初始化云旺SDK
 		InitHelper.initYWSDK(this);
+
 	}
+
+	private boolean mustRunFirstInsideApplicationOnCreate() {
+		//必须的初始化
+		SysUtil.setApplication(this);
+		sContext = getApplicationContext();
+		return SysUtil.isTCMSServiceProcess(sContext);
+	}
+
 }

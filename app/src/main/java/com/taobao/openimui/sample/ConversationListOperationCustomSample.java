@@ -10,7 +10,9 @@ import com.alibaba.mobileim.conversation.YWConversation;
 import com.alibaba.mobileim.conversation.YWConversationType;
 import com.alibaba.mobileim.conversation.YWCustomConversationBody;
 import com.alibaba.openIMUIDemo.R;
+import com.taobao.openimui.contact.ContactSystemMessageActivity;
 import com.taobao.openimui.demo.DemoApplication;
+import com.taobao.openimui.demo.FragmentTabs;
 import com.taobao.openimui.tribe.TribeSystemMessageActivity;
 
 import java.util.ArrayList;
@@ -35,8 +37,8 @@ public class ConversationListOperationCustomSample extends IMConversationListOpe
     }
 
     /**
-     * 返回自定义会话的头像 url
-     * 该方法只适用设置自定义会话头像，设置非自定义会话头像请参考{@link com.taobao.openimui.sample.UserProfileSampleHelper}
+     * 返回自定义会话和群会话的头像 url
+     * 该方法只适用设置自定义会话和群会话的头像，设置单聊会话头像请参考{@link UserProfileSampleHelper}
      * @param fragment
      * @param conversation 会话 可以通过 conversation.getConversationId拿到用户设置的会话id以根据不同的逻辑显示不同的头像
      * @return
@@ -51,8 +53,8 @@ public class ConversationListOperationCustomSample extends IMConversationListOpe
     }
 
     /**
-     * 返回自定义会话的默认头像 如返回本地的 R.drawable.test
-     * 该方法只适用设置自定义会话头像，设置非自定义会话头像请参考{@link com.taobao.openimui.sample.UserProfileSampleHelper}
+     * 返回自定义会话和群会话的默认头像 如返回本地的 R.drawable.test
+     * 该方法只适用设置自定义会话和群会话的头像，设置单聊会话头像请参考{@link UserProfileSampleHelper}
      * @param fragment
      * @param conversation
      * @return
@@ -61,7 +63,18 @@ public class ConversationListOperationCustomSample extends IMConversationListOpe
     public int getConversationDefaultHead(Fragment fragment,
                                           YWConversation conversation) {
         if (conversation.getConversationType() == YWConversationType.Custom) {
-            return R.drawable.aliwx_tribe_head_default;
+            YWCustomConversationBody body = (YWCustomConversationBody) conversation.getConversationBody();
+            String conversationId = body.getIdentity();
+            if(conversationId.equals(FragmentTabs.SYSTEM_TRIBE_CONVERSATION)){
+                return R.drawable.aliwx_tribe_head_default;
+            }else  if(conversationId.equals(FragmentTabs.SYSTEM_FRIEND_REQ_CONVERSATION)){
+                return R.drawable.aliwx_head_default;
+            }else{
+                return R.drawable.aliwx_head_default;
+            }
+
+
+
         }
         return 0;
     }
@@ -79,8 +92,10 @@ public class ConversationListOperationCustomSample extends IMConversationListOpe
                                       YWConversation conversation) {
         if (conversation.getConversationBody() instanceof YWCustomConversationBody) {
             YWCustomConversationBody body = (YWCustomConversationBody) conversation.getConversationBody();
-            if (body.getIdentity().equals("myconversation")) {
+            if (body.getIdentity().equals(FragmentTabs.SYSTEM_TRIBE_CONVERSATION)) {
                 return "群系统消息";
+            }else if (body.getIdentity().equals(FragmentTabs.SYSTEM_FRIEND_REQ_CONVERSATION)) {
+                return "联系人系统消息";
             } else if(body.getIdentity().equals("custom_view_conversation")) {
                 return "自定义View展示的会话";
             }
@@ -101,8 +116,19 @@ public class ConversationListOperationCustomSample extends IMConversationListOpe
 //        Toast.makeText(fragment.getActivity(), "onConversationItemClick",
 //                Toast.LENGTH_SHORT).show();
 //        WXAPI.getInstance().getConversationManager().markReaded(conversation);
-        Intent intent = new Intent(DemoApplication.getContext(), TribeSystemMessageActivity.class);
-        fragment.getActivity().startActivity(intent);
+        if (conversation.getConversationType() == YWConversationType.Custom) {
+            YWCustomConversationBody body = (YWCustomConversationBody) conversation.getConversationBody();
+            String conversationId = body.getIdentity();
+            if (conversationId.startsWith(FragmentTabs.SYSTEM_FRIEND_REQ_CONVERSATION)) {
+                Intent intent = new Intent(DemoApplication.getContext(), ContactSystemMessageActivity.class);
+                fragment.getActivity().startActivity(intent);
+            }else if(conversationId.startsWith(FragmentTabs.SYSTEM_TRIBE_CONVERSATION)){
+                Intent intent = new Intent(DemoApplication.getContext(), TribeSystemMessageActivity.class);
+                fragment.getActivity().startActivity(intent);
+            }
+        }
+
+
     }
 
     /**

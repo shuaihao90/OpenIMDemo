@@ -4,26 +4,20 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
-import java.util.regex.Pattern;
 
 import android.content.Intent;
 import android.widget.Toast;
-import android.util.Log;
 
 import com.alibaba.mobileim.YWIMKit;
-import com.alibaba.mobileim.channel.util.WxLog;
+import com.alibaba.mobileim.channel.cloud.contact.YWProfileInfo;
+import com.alibaba.mobileim.channel.event.IWxCallback;
 import com.alibaba.mobileim.channel.util.YWLog;
 import com.alibaba.mobileim.contact.IYWContact;
 import com.alibaba.mobileim.contact.IYWContactHeadClickCallback;
-import com.alibaba.mobileim.contact.IYWContactProfileCallback;
 import com.alibaba.mobileim.contact.IYWContactService;
-import com.alibaba.openIMUIDemo.R;
+import com.alibaba.mobileim.contact.IYWCrossContactProfileCallback;
+import com.alibaba.mobileim.lib.model.contact.Contact;
 import com.taobao.openimui.demo.DemoApplication;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 /**
  * 用户自定义昵称和头像
@@ -33,47 +27,6 @@ import org.json.JSONObject;
 public class UserProfileSampleHelper {
 
     private static final String TAG = UserProfileSampleHelper.class.getSimpleName();
-    private static String
-            json = "[" +
-            " {\"name\":\"小羊\",\"avatar\":\"pic_1_03\"}," +
-            " {\"name\":\"小汪\",\"avatar\":\"pic_1_05\"}," +
-            " {\"name\":\"浅浅\",\"avatar\":\"pic_1_07\"}," +
-            " {\"name\":\"赫赫\",\"avatar\":\"pic_1_09\"}," +
-            " {\"name\":\"美美\",\"avatar\":\"pic_1_11\"}," +
-            " {\"name\":\"衣衣\",\"avatar\":\"pic_1_18\"}," +
-            " {\"name\":\"鱼鱼\",\"avatar\":\"pic_1_19\"}," +
-            " {\"name\":\"诗诗\",\"avatar\":\"pic_1_20\"}," +
-            " {\"name\":\"张张\",\"avatar\":\"pic_1_29\"}," +
-            " {\"name\":\"大梅\",\"avatar\":\"pic_1_31\"}," +
-            " {\"name\":\"老云\",\"avatar\":\"pic_1_32\"}," +
-            " {\"name\":\"小任\",\"avatar\":\"pic_1_33\"}," +
-            " {\"name\":\"兰兰\",\"avatar\":\"pic_1_34\"}," +
-            " {\"name\":\"大师\",\"avatar\":\"pic_1_40\"}," +
-            " {\"name\":\"大任\",\"avatar\":\"pic_1_41\"}," +
-            " {\"name\":\"色色\",\"avatar\":\"pic_1_42\"}," +
-            " {\"name\":\"鬼鬼\",\"avatar\":\"pic_1_50\"}," +
-            " {\"name\":\"饱饱\",\"avatar\":\"pic_1_51\"}," +
-            " {\"name\":\"多多\",\"avatar\":\"pic_1_52\"}," +
-            " {\"name\":\"唬唬\",\"avatar\":\"pic_1_53\"}" +
-            " ]";
-    private static List<User> users = new ArrayList<User>();
-
-    private static void init() {
-        users.clear();
-        try {
-            JSONArray array = new JSONArray(json);
-            for (int i = 0; i < array.length(); i++) {
-                User tempUser = new User();
-                JSONObject tempJsonObj = array.getJSONObject(i);
-                tempUser.setName(tempJsonObj.getString("name"));
-                tempUser.setAvatar(tempJsonObj.getString("avatar"));
-                users.add(tempUser);
-            }
-        } catch (JSONException e) {
-            Log.e(TAG, e.toString());
-        }
-
-    }
 
     private static boolean enableUseLocalUserProfile = true;
 
@@ -83,12 +36,11 @@ public class UserProfileSampleHelper {
             //目前SDK会自动获取导入到OpenIM的帐户昵称和头像，如果用户设置了回调，则SDK不会从服务器获取昵称和头像
             return;
         }
-        init();
         YWIMKit imKit = LoginSampleHelper.getInstance().getIMKit();
         if(imKit == null) {
             return;
         }
-        IYWContactService contactManager = imKit.getIMCore().getContactService();
+        final IYWContactService contactManager = imKit.getIMCore().getContactService();
 
         //头像点击的回调（开发者可以按需设置）
         contactManager.setContactHeadClickCallback(new IYWContactHeadClickCallback() {
@@ -99,89 +51,123 @@ public class UserProfileSampleHelper {
             }
         });
 
+
         //设置用户信息回调，如果开发者已经把用户信息导入了IM服务器，则不需要再调用该方法，IMSDK会自动到IM服务器获取用户信息
-//        contactManager.setContactProfileCallback(new IYWContactProfileCallback() {
-//
-//            @Override
-//            public Intent onShowProfileActivity(String arg0) {
-//                return null;
-//            }
-//
-//            //此方法会在SDK需要显示头像和昵称的时候，调用。同一个用户会被多次调用的情况。
-//            //比如显示会话列表，显示聊天窗口时同一个用户都会被调用到。
-//            @Override
-//            public IYWContact onFetchContactInfo(String arg0) {
-//                // 开发者需要根据不同的用户ID显示不同的昵称和头像。
-//                try {
-//                    String userId = arg0;
-//                    return modifyUserInfo(userId);
-//                } catch (Exception e) {
-//
-//                }
-//                return null;
-//            }
-//        });
+        contactManager.setCrossContactProfileCallback(new IYWCrossContactProfileCallback() {
+
+            /**
+             * 设置头像点击事件, 该方法已废弃，后续请使用{@link IYWContactService#setContactHeadClickCallback(IYWContactHeadClickCallback)}
+             * @param userId 需要打开页面的用户
+             * @param appKey 需要返回个人信息的用户所属站点
+             * @return
+             * @deprecated
+             */
+            @Override
+            public Intent onShowProfileActivity(String userId, String appKey) {
+                return null;
+            }
+
+            @Override
+            public void updateContactInfo(Contact contact) {
+
+            }
+            //此方法会在SDK需要显示头像和昵称的时候，调用。同一个用户会被多次调用的情况。
+            //比如显示会话列表，显示聊天窗口时同一个用户都会被调用到。
+            @Override
+            public IYWContact onFetchContactInfo(final String userId, final String appKey) {
+                //[需特殊处理的账号(如客服账号)] 或者 [昵称等Profile信息未导入云旺服务器]时。此为示例代码
+                if(isNeedSpecialHandleAccount(userId, appKey)){
+                    //首先从内存中获取用户信息
+                    // todo 由于每次更新UI都会调用该方法，所以必现创建一个内存缓存，先从内存中拿用户信息，内存中没有才访问数据库或者网络，如果不创建内存缓存，而是每次都访问数据库或者网络，会导致死循环！！
+                    final IYWContact userInfo = mUserInfo.get(userId);
+                    //若内存中有用户信息，则直接返回该用户信息
+                    if (userInfo != null){
+                        YWLog.d(TAG+"@profile","onFetchContactInfo Hit! "+userInfo.toString());
+                        return userInfo;
+                    } else {
+                        //若内存中没有用户信息则从服务器获取用户信息
+                        //先创建一个临时的IYWContact对象保存到mUserInfo，这是为了避免服务器请求成功之前SDK又一次调用了onFetchContactInfo()方法，从而导致再次触发服务器请求
+                        IYWContact temp = new UserInfo(userId, null,userId,appKey);
+                        mUserInfo.put(userId, temp);
+                        List<String> uids = new ArrayList<String>();
+                        uids.add(userId);
+                        //从服务端获取用户信息，这里的示例的代码是从IM服务端获取用户信息的，在实际使用时开发者可以根据需求 从自己的服务器或者从本地数据库获取用户信息
+                        YWLog.d(TAG+"@profile","onFetchContactInfo Not-Hit! fetchUserProfile "+userId);
+
+                        contactManager.fetchUserProfile(uids, appKey, new IWxCallback() {
+                            @Override
+                            public void onSuccess(Object... result) {
+                                if (result != null && result.length > 0){
+                                    List<YWProfileInfo> infos = (List<YWProfileInfo>) result[0];
+                                    if (infos.size() > 0){
+                                        YWProfileInfo profileInfo = infos.get(0);
+                                        IYWContact contact = new UserInfo(profileInfo.nick, profileInfo.icon,userId,appKey);
+                                        //todo 更新内存中的用户信息，这里必须要更新内存中的数据，以便IMSDK刷新UI时可以直接从内存中拿到数据
+                                        mUserInfo.remove(userId);   //移除临时的IYWContact对象
+                                        mUserInfo.put(profileInfo.userId, contact);  //保存从服务器获取到的数据
+                                        //todo 通知IMSDK更新UI
+                                        YWLog.d(TAG+"@profile","fetchUserProfile notifyContactProfileUpdate! "+contact.toString());
+
+                                        contactManager.notifyContactProfileUpdate(contact.getUserId(), appKey);
+                                    }
+                                }
+                            }
+
+                            @Override
+                            public void onError(int code, String info) {
+                                //移除临时的IYWContact对象，从而保证SDK再次调用onFetchContactInfo()时可用再次触发服务器请求
+                                mUserInfo.remove(userId);
+                            }
+
+                            @Override
+                            public void onProgress(int progress) {
+
+                            }
+                        });
+                        return temp;
+                    }
+                }
+                //todo 当返回null时，SDK内部才会从云旺服务器获取对应的profile,因此这里必须返回null
+                return null;
+            }
+        });
     }
 
     /**
-     * 设定希望显示的用户昵称和头像
-     * 头像支持本地路径和URL路径以及资源ID号。重要：头像图片最好小于10K，否则第一次加载可能会有图像压缩的延时,URL路径还有下载的延时
-     *
-     * 注意本地路径，需要以pic_1_开头
-     * @param userId   用户ID
+     *  todo 1. 账号的昵称和头像已经导入云旺服务器的情况，一般情况直接返回false即可，除非需"特殊处理"的账号 2.未导入云旺服务器的情况，返回true即可（建议导入）
+     * @param userid
+     * @param appkey
      * @return
      */
-    private static UserInfo modifyUserInfo(String userId) {
-        long num;
-        // 提取数字
-        String characs = Pattern.compile("[1-9]\\d*").matcher(userId).replaceAll("");
-        String shortUserId = userId.substring(characs.length());
-        //根据用户id末两位数字生成昵称和头像地址
-        YWLog.d(TAG, "short userId = " + shortUserId);
-        try {
-            num = Long.valueOf(shortUserId);
-        } catch (Exception e) {
-            //末尾不是数字，随机一个数字
-            num = new Random().nextInt(20);
-        }
-        //模json的长度，来匹配json中储存的头像和昵称
-        long modNum = num % 20;
-        UserInfo userInfo = mUserInfo.get(userId);
-        if (userInfo == null) {
-            if (userId.startsWith("百川测试111")) { //客服账号特殊处理
-                userInfo = new UserInfo("openim官方客服", "pic_1_cs");
-            } else if (userId.startsWith("百川开发者大会小秘书")) {  //客服账号特殊处理
-                userInfo = new UserInfo(userId, "pic_1_bc");
-            } else if (userId.equals("云大旺") || userId.equals("云二旺") || userId.equals("云三旺") || userId.equals("云四旺") || userId.equals("云小旺")) {
-                //支持资源ID号的方式
-                userInfo = new UserInfo(userId, R.drawable.pic_1_lg);
-            } else {
-                // 为了方便体验，这里只做了一个简单的字符串连接作为用户的昵称。开发者可以根据自己的需要，用其他方式做映射（例如 app 的 profile服务器）
-                userInfo = new UserInfo("昵称-" + userId,
-                        /*new StringBuilder(users.get((int) modNum).getName()).append("_").append(WXUtil.getMD5Value(userId).substring(WXUtil.getMD5Value(userId).length() - 2).toUpperCase()).toString(),*/
-                        new StringBuilder(users.get((int) modNum).getAvatar()).toString()
-                );
-            }
+    private static boolean isNeedSpecialHandleAccount(String userid, String appkey){
+//        if(!TextUtils.isEmpty(userid)&&userid.startsWith("云")){
+//            return true;
+//        }
+//        return  false;
 
-            mUserInfo.put(userId, userInfo);
-        }
-        return userInfo;
+        return true;
     }
 
     // 这个只是个示例，开发者需要自己管理用户昵称和头像
-    private static Map<String, UserInfo> mUserInfo = new HashMap<String, UserProfileSampleHelper.UserInfo>();
+    private static Map<String, IYWContact> mUserInfo = new HashMap<String, IYWContact>();
 
     private static class UserInfo implements IYWContact {
 
         private String mUserNick;    // 用户昵称
         private String mAvatarPath;    // 用户头像URL
-
         private int mLocalResId;//主要用于本地资源
-
+        private String mUserId;    // 用户id
+        private String mAppKey;    // 用户appKey
 
         public UserInfo(String nickName, String avatarPath) {
             this.mUserNick = nickName;
             this.mAvatarPath = avatarPath;
+        }
+        public UserInfo(String nickName, String avatarPath,String userId,String appKey) {
+            this.mUserNick = nickName;
+            this.mAvatarPath = avatarPath;
+            this.mUserId = userId;
+            this.mAppKey = appKey;
         }
 
         public UserInfo(String nickName, int resId) {
@@ -191,7 +177,7 @@ public class UserProfileSampleHelper {
 
         @Override
         public String getAppKey() {
-            return null;
+            return mAppKey;
         }
 
         @Override
@@ -210,28 +196,19 @@ public class UserProfileSampleHelper {
 
         @Override
         public String getUserId() {
-            return null;
+            return mUserId;
+        }
+
+        @Override
+        public String toString() {
+            return "UserInfo{" +
+                    "mUserNick='" + mUserNick + '\'' +
+                    ", mAvatarPath='" + mAvatarPath + '\'' +
+                    ", mUserId='" + mUserId + '\'' +
+                    ", mAppKey='" + mAppKey + '\'' +
+                    ", mLocalResId=" + mLocalResId +
+                    '}';
         }
     }
 
-    private static class User {
-        private String name;
-        private String avatar;
-
-        public String getName() {
-            return name;
-        }
-
-        public void setName(String name) {
-            this.name = name;
-        }
-
-        public String getAvatar() {
-            return avatar;
-        }
-
-        public void setAvatar(String avatar) {
-            this.avatar = avatar;
-        }
-    }
 }

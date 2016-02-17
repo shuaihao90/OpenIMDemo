@@ -233,6 +233,10 @@ public class TribeFragment extends Fragment implements AdapterView.OnItemClickLi
         });
     }
 
+    /**
+     * 弹出要创建的群类型选项
+     * @param v
+     */
     private void showPopupMenu(View v) {
         final View bgView = View.inflate(DemoApplication.getContext(), R.layout.demo_popup_window_bg, null);
         bgView.setOnClickListener(new View.OnClickListener() {
@@ -247,6 +251,7 @@ public class TribeFragment extends Fragment implements AdapterView.OnItemClickLi
         mPopupBackground.showAtLocation(v, Gravity.BOTTOM, 0, 0);
 
         View view = View.inflate(DemoApplication.getContext(), R.layout.demo_popup_menu, null);
+        //创建群组
         TextView tribe = (TextView) view.findViewById(R.id.create_tribe);
         tribe.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -259,6 +264,7 @@ public class TribeFragment extends Fragment implements AdapterView.OnItemClickLi
             }
         });
 
+        //创建讨论组
         TextView room = (TextView) view.findViewById(R.id.create_room);
         room.setOnClickListener(new View.OnClickListener() {
             @Override

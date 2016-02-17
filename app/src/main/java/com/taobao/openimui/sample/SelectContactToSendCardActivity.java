@@ -2,6 +2,7 @@ package com.taobao.openimui.sample;
 
 import android.graphics.Color;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.view.View;
 import android.widget.RelativeLayout;
@@ -9,9 +10,9 @@ import android.widget.TextView;
 
 import com.alibaba.mobileim.YWIMKit;
 import com.alibaba.mobileim.channel.util.YWLog;
+import com.alibaba.mobileim.ui.contact.ContactsFragment;
+import com.alibaba.mobileim.ui.contact.adapter.ContactsAdapter;
 import com.alibaba.openIMUIDemo.R;
-import com.taobao.openimui.demo.ContactsFragment;
-import com.taobao.openimui.feature.contact.adapter.ContactsAdapter;
 import java.util.List;
 
 public class SelectContactToSendCardActivity extends FragmentActivity {
@@ -71,7 +72,7 @@ public class SelectContactToSendCardActivity extends FragmentActivity {
     }
 
     private void createFragment(){
-        mFragment = new ContactsFragment();
+        mFragment =mIMKit.getContactsFragment();
         Bundle bundle = new Bundle();
         bundle.putString(ContactsFragment.SEND_CARD, ContactsFragment.SEND_CARD);
         mFragment.setArguments(bundle);

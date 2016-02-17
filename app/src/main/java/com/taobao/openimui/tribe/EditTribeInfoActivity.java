@@ -36,6 +36,10 @@ public class EditTribeInfoActivity extends Activity {
     private EditText mTribeName;
     private EditText mTribeNotice;
 
+    private String oldTribeName;
+    private String oldTribeNotice;
+    private ModifyTribeInfoCallback callback;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -60,6 +64,8 @@ public class EditTribeInfoActivity extends Activity {
         mTribeNotice = (EditText) findViewById(R.id.tribe_description);
         YWTribe tribe = mTribeService.getTribe(mTribeId);
         if (tribe != null) {
+            oldTribeName = tribe.getTribeName();
+            oldTribeNotice = tribe.getTribeNotice();
             mTribeName.setText(tribe.getTribeName());
             mTribeNotice.setText(tribe.getTribeNotice());
         }
@@ -113,23 +119,21 @@ public class EditTribeInfoActivity extends Activity {
     private void updateTribeInfo() {
         String name = mTribeName.getText().toString();
         String notice = mTribeNotice.getText().toString();
-        mTribeService.modifyTribeInfo(new IWxCallback() {
-            @Override
-            public void onSuccess(Object... result) {
-                Notification.showToastMsg(EditTribeInfoActivity.this, "修改群信息成功！");
-                finish();
-            }
-
-            @Override
-            public void onError(int code, String info) {
-                Notification.showToastMsg(EditTribeInfoActivity.this, "修改群信息失败，code = " + code + ", info = " + info);
-            }
-
-            @Override
-            public void onProgress(int progress) {
-
-            }
-        }, mTribeId, name, notice);
+        if(name.equals(oldTribeName) && notice.equals(oldTribeNotice)) {
+            //没有修改,不提交服务端
+            finish();
+            return;
+        }
+        if(callback == null) {
+            callback = new ModifyTribeInfoCallback();
+        }
+        if(name.equals(oldTribeName) && !notice.equals(oldTribeNotice)) {
+            mTribeService.modifyTribeInfo(callback, mTribeId, null, notice);
+        } else if(!name.equals(oldTribeName) && notice.equals(oldTribeNotice)) {
+            mTribeService.modifyTribeInfo(callback, mTribeId, name, null);
+        } else {
+            mTribeService.modifyTribeInfo(callback, mTribeId, name, notice);
+        }
     }
 
     private void createTribe(final YWTribeType type) {
@@ -167,6 +171,24 @@ public class EditTribeInfoActivity extends Activity {
 
             }
         }, param);
+    }
+
+    class ModifyTribeInfoCallback implements IWxCallback {
+        @Override
+        public void onSuccess(Object... result) {
+            Notification.showToastMsg(EditTribeInfoActivity.this, "修改群信息成功！");
+            finish();
+        }
+
+        @Override
+        public void onError(int code, String info) {
+            Notification.showToastMsg(EditTribeInfoActivity.this, "修改群信息失败，code = " + code + ", info = " + info);
+        }
+
+        @Override
+        public void onProgress(int progress) {
+
+        }
     }
 
 }

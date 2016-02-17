@@ -28,7 +28,7 @@ public class CustomConversationHelper {
 
         YWIMKit imKit = LoginSampleHelper.getInstance().getIMKit();
         IYWConversationService conversationService = imKit.getConversationService();
-        YWConversation conversation = conversationService.getCustomConversationByConversationId("id");
+        YWConversation conversation = conversationService.getCustomConversationByConversationId(conversationID);
         if (conversation != null){
             conversation.getUnreadCount();
         }

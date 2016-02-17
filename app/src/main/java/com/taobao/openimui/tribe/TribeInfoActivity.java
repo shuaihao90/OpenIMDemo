@@ -19,12 +19,15 @@ import com.alibaba.mobileim.channel.constant.YWProfileSettingsConstants;
 import com.alibaba.mobileim.channel.event.IWxCallback;
 import com.alibaba.mobileim.channel.util.WxLog;
 import com.alibaba.mobileim.channel.util.YWLog;
+import com.alibaba.mobileim.contact.IYWContact;
+import com.alibaba.mobileim.contact.IYWContactService;
 import com.alibaba.mobileim.conversation.IYWConversationService;
 import com.alibaba.mobileim.conversation.YWConversation;
 import com.alibaba.mobileim.fundamental.widget.WxAlertDialog;
 import com.alibaba.mobileim.gingko.model.settings.YWTribeSettingsModel;
 import com.alibaba.mobileim.gingko.model.tribe.YWTribe;
 import com.alibaba.mobileim.gingko.model.tribe.YWTribeMember;
+import com.alibaba.mobileim.gingko.model.tribe.YWTribeRole;
 import com.alibaba.mobileim.gingko.presenter.tribe.IYWTribeChangeListener;
 import com.alibaba.mobileim.tribe.IYWTribeService;
 import com.alibaba.mobileim.utility.IMNotificationUtils;
@@ -82,6 +85,8 @@ public class TribeInfoActivity extends Activity {
     private IYWConversationService conversationService;
     private YWConversation conversation;
 
+    private YWTribeMember mLoginUser;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -91,8 +96,12 @@ public class TribeInfoActivity extends Activity {
         mTribeId = intent.getLongExtra(TribeConstants.TRIBE_ID, 0);
         mTribeOp = intent.getStringExtra(TribeConstants.TRIBE_OP);
 
-        conversationService = LoginSampleHelper.getInstance().getIMKit().getConversationService();
+        mIMKit = LoginSampleHelper.getInstance().getIMKit();
+
+        conversationService = mIMKit.getConversationService();
         conversation = conversationService.getTribeConversation(mTribeId);
+
+        mTribeService = mIMKit.getTribeService();
 
         initTribeChangedListener();
         initTribeInfo();
@@ -282,7 +291,7 @@ public class TribeInfoActivity extends Activity {
             mMemberCount.setText(mTribeMemberCount + "人");
         }
         initMsgRecFlags();
-        if (getLoginUserRole() == YWTribeMember.ROLE_HOST) {
+        if (getLoginUserRole() == YWTribeRole.TRIBE_HOST.type) {
             mMangeTribeMembers.setText("群成员管理");
             mEditTribeInfoLayout.setVisibility(View.VISIBLE);
             mQuiteTribe.setText("解散群");
@@ -380,7 +389,7 @@ public class TribeInfoActivity extends Activity {
                 }
             });
         } else {
-            if (getLoginUserRole() == YWTribeMember.ROLE_NORMAL) {
+            if (getLoginUserRole() == YWTribeRole.TRIBE_MEMBER.type) {
                 mMangeTribeMembersLayout.setVisibility(View.VISIBLE);
                 mEditTribeInfoLayout.setVisibility(View.GONE);
             } else {
@@ -404,8 +413,6 @@ public class TribeInfoActivity extends Activity {
     }
 
     private void initTribeInfo() {
-        mIMKit = LoginSampleHelper.getInstance().getIMKit();
-        mTribeService = mIMKit.getTribeService();
         mTribe = mTribeService.getTribe(mTribeId);
         mTribeService.addTribeListener(mTribeChangedListener);
         initTribeMemberList();
@@ -415,10 +422,12 @@ public class TribeInfoActivity extends Activity {
     private void getTribeInfoFromServer() {
         mTribeService.getTribeFromServer(new IWxCallback() {
             @Override
-            public void onSuccess(Object... result) {
+            public void onSuccess(final Object... result) {
                 mHandler.post(new Runnable() {
                     @Override
                     public void run() {
+                        mTribe = (YWTribe)result[0];
+                        mTribeMemberCount = mTribe.getMemberCount();
                         updateView();
                     }
                 });
@@ -452,6 +461,7 @@ public class TribeInfoActivity extends Activity {
                     mHandler.post(new Runnable() {
                         @Override
                         public void run() {
+                            initLoginUser();
                             updateView();
                         }
                     });
@@ -481,6 +491,7 @@ public class TribeInfoActivity extends Activity {
                     mHandler.post(new Runnable() {
                         @Override
                         public void run() {
+                            initLoginUser();
                             updateView();
                         }
                     });
@@ -499,20 +510,25 @@ public class TribeInfoActivity extends Activity {
         }, mTribeId);
     }
 
+    private void initLoginUser(){
+        String loginUser = mIMKit.getIMCore().getLoginUserId();
+        for (YWTribeMember member : mList) {
+            if (member.getUserId().equals(loginUser)) {
+                mLoginUser = member;
+                break;
+            }
+        }
+    }
+
     /**
      * 判断当前登录用户在群组中的身份
      *
      * @return
      */
     private int getLoginUserRole() {
-        int role = YWTribeMember.ROLE_NORMAL;
-        String loginUser = mIMKit.getIMCore().getLoginUserId();
-        for (YWTribeMember member : mList) {
-            if (member.getUserId().equals(loginUser)) {
-                role = member.getTribeRole();
-            }
-        }
-        return role;
+        if(mTribe.getTribeRole() == null)
+            return YWTribeRole.TRIBE_MEMBER.type;
+        return mTribe.getTribeRole().type;
     }
 
     /**
@@ -521,18 +537,23 @@ public class TribeInfoActivity extends Activity {
      * @return
      */
     private String getLoginUserTribeNick() {
-        if (mIMKit == null) {
-            mIMKit = LoginSampleHelper.getInstance().getIMKit();
+        if (mLoginUser != null && !TextUtils.isEmpty(mLoginUser.getTribeNick())) {
+            return mLoginUser.getTribeNick();
         }
-        String loginUser = mIMKit.getIMCore().getLoginUserId();
-        String userNick = loginUser;
-        for (YWTribeMember member : mList) {
-            if (member.getUserId().equals(loginUser)) {
-                userNick = member.getShowName();
-                break;
+        String tribeNick = null;
+        IYWContactService contactService = mIMKit.getContactService();
+        IYWContact contact = contactService.getContactProfileInfo(mIMKit.getIMCore().getLoginUserId(), mIMKit.getIMCore().getAppKey());
+        if (contact != null){
+            if (!TextUtils.isEmpty(contact.getShowName())){
+                tribeNick = contact.getShowName();
+            } else {
+                tribeNick =  contact.getUserId();
             }
         }
-        return userNick;
+        if(TextUtils.isEmpty(tribeNick)) {
+            tribeNick = mIMKit.getIMCore().getLoginUserId();
+        }
+        return tribeNick;
     }
 
     @Override
@@ -550,18 +571,22 @@ public class TribeInfoActivity extends Activity {
 
             @Override
             public void onUserJoin(YWTribe tribe, YWTribeMember user) {
-                mTribeMemberCount += 1;
-                mHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        updateTribeMemberCount();
-                    }
-                });
+                mTribeMemberCount = tribe.getMemberCount();
+                if(mIMKit.getIMCore().getLoginUserId().equals(user.getUserId())) {
+                    getTribeInfoFromServer();
+                } else {
+                    mHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            updateTribeMemberCount();
+                        }
+                    });
+                }
             }
 
             @Override
             public void onUserQuit(YWTribe tribe, YWTribeMember user) {
-                mTribeMemberCount -= 1;
+                mTribeMemberCount = tribe.getMemberCount();
                 mHandler.post(new Runnable() {
                     @Override
                     public void run() {

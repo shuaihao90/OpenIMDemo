@@ -90,6 +90,7 @@ public class ChattingActivity extends Activity {
         mPullToRefreshListView.setRefreshingLabel("同步群成员列表");
         mPullToRefreshListView.setReleaseLabel("松开同步群成员列表");
         mPullToRefreshListView.setDisableRefresh(false);
+        //下拉刷新时加载更多消息
         mPullToRefreshListView.setOnRefreshListener(new YWPullToRefreshBase.OnRefreshListener() {
             @Override
             public void onRefresh() {
@@ -127,7 +128,7 @@ public class ChattingActivity extends Activity {
         //初始化消息列表adapter
         mAdapter = new ChattingAdapter(mMessageList);
         mListView.setAdapter(mAdapter);
-        //添加新消息到达监听,监听到有新消息到达的时候更新adapter新消息就可以显示在UI了
+        //添加新消息到达监听,监听到有新消息到达的时候或者消息类别有变更的时候应该更新adapter
         mConversation.getMessageLoader().addMessageListener(mMessageListener);
     }
 
@@ -138,7 +139,6 @@ public class ChattingActivity extends Activity {
                 mUIHandler.post(new Runnable() {
                     @Override
                     public void run() {
-                        mAdapter.notifyDataSetChangedWithAsyncLoad();
                         mPullToRefreshListView.onRefreshComplete(false, true);
                     }
                 });
@@ -163,12 +163,17 @@ public class ChattingActivity extends Activity {
 
     IYWMessageListener mMessageListener = new IYWMessageListener() {
         @Override
-        public void onItemUpdated() {
-
+        public void onItemUpdated() {  //消息列表变更，例如删除一条消息，修改消息状态，加载更多消息等等
+            mUIHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    mAdapter.notifyDataSetChangedWithAsyncLoad();
+                }
+            });
         }
 
         @Override
-        public void onItemComing() {
+        public void onItemComing() { //收到新消息
             mUIHandler.post(new Runnable() {
                 @Override
                 public void run() {
@@ -186,7 +191,7 @@ public class ChattingActivity extends Activity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        //请务必在销毁activity的时候移除该监听，否则可能会导致该监听被多次添加
+        //请务必在销毁activity的时候移除该监听，否则可能会导致该监听被多次添加，造成内存泄露
         if (mConversation != null){
             mConversation.getMessageLoader().removeMessageListener(mMessageListener);
         }

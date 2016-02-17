@@ -12,10 +12,10 @@ import com.alibaba.mobileim.channel.event.IWxCallback;
 import com.alibaba.mobileim.channel.util.YWLog;
 import com.alibaba.mobileim.gingko.model.tribe.YWTribeType;
 import com.alibaba.mobileim.tribe.IYWTribeService;
+import com.alibaba.mobileim.ui.contact.ContactsFragment;
+import com.alibaba.mobileim.ui.contact.adapter.ContactsAdapter;
 import com.alibaba.openIMUIDemo.R;
 import com.taobao.openimui.common.Notification;
-import com.taobao.openimui.demo.ContactsFragment;
-import com.taobao.openimui.feature.contact.adapter.ContactsAdapter;
 import com.taobao.openimui.sample.LoginSampleHelper;
 
 import java.util.List;
@@ -105,7 +105,7 @@ public class InviteTribeMemberActivity extends FragmentActivity {
     }
 
     private void createFragment(){
-        mFragment = new ContactsFragment();
+        mFragment =mIMKit.getContactsFragment();
         Bundle bundle = new Bundle();
         bundle.putString(TribeConstants.TRIBE_OP, TribeConstants.TRIBE_INVITE);
         bundle.putLong(TribeConstants.TRIBE_ID, mTribeId);

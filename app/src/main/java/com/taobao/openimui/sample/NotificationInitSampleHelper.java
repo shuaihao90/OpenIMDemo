@@ -36,6 +36,9 @@ public class NotificationInitSampleHelper extends IMNotification{
             //此方法已经废弃,具体请见 当前文件的getNotificationIconResID
 			//imKit.setResId(R.drawable.aliwx_notification_bg);//通知栏icon
 
+            //设置是否开启通知提醒
+            imKit.setEnableNotification(true);
+
             mNeedSound = (DemoSimpleKVStore.getNeedSound() == 1);
             mNeedVibrator = (DemoSimpleKVStore.getNeedVibration() == 1);
 		}
@@ -149,4 +152,14 @@ public class NotificationInitSampleHelper extends IMNotification{
     public String getAppName() {
         return "我的OpenIM";
     }
+
+    /**
+     * 返回自定义提示音资源Id
+     * @return  提示音资源Id
+     */
+    @Override
+    public int getNotificationSoundResId() {
+        return 0;
+    }
+
 }
