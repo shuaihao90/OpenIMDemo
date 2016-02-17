@@ -110,4 +110,18 @@
         android:textColor="@color/aliwx_setting_bg_nor"
         android:textSize="@dimen/aliwx_common_text_size" />
 
+    <TextView
+        android:id="@+id/open_conversation_activity"
+        android:layout_width="fill_parent"
+        android:layout_height="@dimen/more_item_height"
+        android:layout_marginBottom="@dimen/aliwx_common_safe_margin"
+        android:layout_marginLeft="@dimen/aliwx_column_up_unit_margin"
+        android:layout_marginRight="@dimen/aliwx_column_up_unit_margin"
+        android:layout_marginTop="@dimen/aliwx_column_up_unit_margin"
+        android:background="@drawable/demo_common_red_btn_bg"
+        android:gravity="center"
+        android:text="打开会话列表"
+        android:textColor="@color/aliwx_setting_bg_nor"
+        android:textSize="@dimen/aliwx_common_text_size" />
+
 </LinearLayout>

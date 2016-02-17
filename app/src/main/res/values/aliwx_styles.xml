@@ -61,7 +61,7 @@
         <item name="aliwx_title_left_icon">@drawable/aliwx_common_back_btn_bg</item>
         <item name="aliwx_chatbottom_expand">@drawable/aliwx_reply_bar_expand</item>
         <item name="aliwx_chatbottom_smily">@drawable/aliwx_reply_bar_face_bg</item>
-        <item name="aliwx_chatbottom_record">@drawable/aliwx_reply_bar_record</item>
+        <item name="aliwx_chatbottom_record">@drawable/aliwx_reply_bar_record_bg</item>
         <item name="aliwx_chattime_bg">@drawable/aliwx_time_text_view_border</item>
     </style>
 
@@ -214,11 +214,7 @@
 
     <style name="aliwx_chatting_detail_show_time_style">
         <item name="android:textSize">@dimen/aliwx_font_third_grade</item>
-        <item name="android:textColor">@android:color/white</item>
-        <item name="android:shadowRadius">1</item>
-        <item name="android:shadowColor">#80ffffff</item>
-        <item name="android:shadowDx">0</item>
-        <item name="android:shadowDy">1</item>
+        <item name="android:textColor">@color/aliwx_color_gray_02</item>
     </style>
 
     <style name="aliwx_chatting_detail_text_right_style">
@@ -236,10 +232,10 @@
     <style name="aliwx_chatting_detail_sysmsg_style">
         <item name="android:textSize">@dimen/aliwx_font_third_grade</item>
         <item name="android:textColor">@color/aliwx_chatting_detail_sysmsg_color</item>
-        <item name="android:paddingBottom">10dip</item>
-        <item name="android:paddingLeft">20dip</item>
-        <item name="android:paddingRight">20dip</item>
-        <item name="android:paddingTop">10dip</item>
+        <item name="android:paddingBottom">5dip</item>
+        <item name="android:paddingLeft">15dip</item>
+        <item name="android:paddingRight">15dip</item>
+        <item name="android:paddingTop">5dip</item>
     </style>
 
     <style name="aliwx_chatting_detail_record_button_style">
@@ -256,37 +252,38 @@
     <style name="aliwx_chatting_detail_input_text_style">
         <item name="android:layout_width">fill_parent</item>
         <item name="android:layout_height">wrap_content</item>
+        <item name="android:minHeight">34dp</item>
         <item name="android:background">@drawable/aliwx_input_text_bg</item>
         <item name="android:gravity">center_vertical</item>
         <item name="android:textSize">@dimen/aliwx_common_text_size</item>
         <item name="android:maxLength">@integer/aliwx_max_chatting_word_length</item>
         <item name="android:maxLines">4</item>
-        <item name="android:minHeight">@dimen/aliwx_editview_h</item>
         <item name="android:layout_centerVertical">true</item>
     </style>
 
     <style name="aliwx_chatting_detail_expand_style">
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_width">27dp</item>
+        <item name="android:layout_height">27dp</item>
         <item name="android:layout_marginRight">8dip</item>
         <item name="android:button">@null</item>
         <item name="android:background">@drawable/aliwx_reply_bar_expand</item>
     </style>
 
     <style name="aliwx_chatting_detail_phrase_style">
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_width">27dp</item>
+        <item name="android:layout_height">27dp</item>
         <item name="android:layout_marginRight">8dip</item>
         <item name="android:button">@null</item>
         <item name="android:background">@drawable/aliwx_reply_bar_face_bg</item>
     </style>
 
     <style name="aliwx_chatting_detail_record_style">
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_width">27dp</item>
+        <item name="android:layout_height">27dp</item>
         <item name="android:layout_marginLeft">8dip</item>
         <item name="android:layout_marginRight">8dip</item>
         <item name="android:button">@null</item>
+        <item name="android:background">@drawable/aliwx_reply_bar_record_bg</item>
     </style>
 
     <style name="aliwx_chatting_detail_chat_send_style">

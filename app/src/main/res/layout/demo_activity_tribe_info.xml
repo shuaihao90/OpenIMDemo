@@ -179,6 +179,17 @@
                     android:background="@color/more_line_color" />
             </RelativeLayout>
 
+            <View
+                android:layout_width="fill_parent"
+                android:layout_height="1px"
+                android:background="@color/more_line_color" />
+
+            <View
+                android:layout_width="fill_parent"
+                android:layout_height="1px"
+                android:layout_marginTop="@dimen/common_safe_margin"
+                android:background="@color/more_line_color" />
+
             <RelativeLayout
                 android:id="@+id/personal_tribe_setting_layout"
                 android:layout_width="wrap_content"
@@ -204,7 +215,6 @@
             <View
                 android:layout_width="fill_parent"
                 android:layout_height="1px"
-                android:layout_marginTop="@dimen/common_safe_margin"
                 android:background="@color/more_line_color" />
 
             <RelativeLayout
@@ -262,6 +272,47 @@
                     android:src="@drawable/on_switch"/>
 
             </RelativeLayout>
+
+            <View
+                android:layout_width="fill_parent"
+                android:layout_height="1px"
+                android:background="@color/more_line_color" />
+
+            <RelativeLayout
+                android:id="@+id/config_at_all_for_normal_members_layout"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/setting_item_height"
+                android:layout_below="@id/tribe_msg_rec_type_layout"
+                android:layout_marginTop="@dimen/common_safe_margin"
+                android:background="@color/white"
+                android:visibility="gone">
+                <View
+                    android:id="@+id/divider_line"
+                    android:layout_width="fill_parent"
+                    android:layout_height="1px"
+                    android:background="@color/more_line_color" />
+
+                <TextView
+                    style="@style/more_item_style"
+                    android:layout_below="@id/divider_line"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/setting_item_height"
+                    android:text="开放@all权限"/>
+
+                <ImageView
+                    android:id="@+id/config_at_all_switch"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_alignParentRight="true"
+                    android:layout_marginRight="@dimen/common_safe_margin"
+                    android:src="@drawable/on_switch"/>
+
+            </RelativeLayout>
+
+            <View
+                android:layout_width="fill_parent"
+                android:layout_height="1px"
+                android:background="@color/more_line_color" />
 
             <View
                 android:layout_width="fill_parent"

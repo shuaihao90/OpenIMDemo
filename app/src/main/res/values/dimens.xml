@@ -39,9 +39,7 @@
     <dimen name="head_block_height">240dip</dimen>
     <dimen name="bottom_tab_height">52dip</dimen>
     <dimen name="pop_up_win_width">183dip</dimen>
-    <dimen name="pop_up_win_width_2">220dip</dimen>
     <dimen name="message_item_height">55dip</dimen>
-    <dimen name="pop_up_win_width_3">161dip</dimen>
     <dimen name="pop_up_win_width_ls">117dip</dimen>
     <dimen name="common_big_margin">20dip</dimen>
     <dimen name="common_safe_margin">12dip</dimen>
@@ -61,7 +59,6 @@
     <dimen name="friend_alpha_height">25dp</dimen>
     <dimen name="friend_select_btn_width">100dip</dimen>
     <dimen name="common_grey_btn_width">75dip</dimen>
-    <dimen name="common_title_btn_height2">40dip</dimen>
     <dimen name="basic_btn_width">35dip</dimen>
     <dimen name="friend_recommond_margin_top">9dip</dimen>
     <dimen name="friend_find_view_height">43dip</dimen>

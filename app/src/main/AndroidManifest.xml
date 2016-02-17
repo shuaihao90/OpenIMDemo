@@ -20,8 +20,6 @@
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
     <uses-permission android:name="android.permission.VIBRATE" />
-    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
-    <uses-permission android:name="android.permission.SYSTEM_OVERLAY_WINDOW" />
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
 
     <application
@@ -84,7 +82,8 @@
             android:name="com.taobao.openimui.demo.FragmentTabs"
             android:configChanges="keyboardHidden|orientation"
             android:launchMode="singleTask"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            android:theme="@style/MainActivityTheme" />
         <activity
             android:name="com.taobao.openimui.common.SimpleWebViewActivity"
             android:configChanges="keyboardHidden|orientation"
@@ -93,7 +92,8 @@
         <activity
             android:name="com.taobao.openimui.sample.ChattingFragmentSample"
             android:configChanges="keyboardHidden|orientation"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="stateHidden|adjustResize" />
         <activity
             android:name="com.taobao.openimui.sample.ExpandableContactsActivitySample"
             android:configChanges="keyboardHidden|orientation"
@@ -127,22 +127,34 @@
         <activity android:name="com.taobao.openimui.test.TestActivity2" />
         <activity
             android:name="com.taobao.openimui.tribe.TribeMembersActivity"
+            android:screenOrientation="portrait"
             android:theme="@style/Aliwx_ContentOverlay_default" />
         <activity
             android:name="com.taobao.openimui.tribe.TribeInfoActivity"
+            android:screenOrientation="portrait"
             android:theme="@style/Aliwx_ContentOverlay_default" />
         <activity
             android:name="com.taobao.openimui.tribe.SearchTribeActivity"
+            android:screenOrientation="portrait"
             android:theme="@style/Aliwx_ContentOverlay_default" />
         <activity
             android:name="com.taobao.openimui.tribe.EditTribeInfoActivity"
+            android:screenOrientation="portrait"
             android:theme="@style/Aliwx_ContentOverlay_default"
             android:windowSoftInputMode="stateHidden" />
         <activity
             android:name="com.taobao.openimui.tribe.InviteTribeMemberActivity"
+            android:screenOrientation="portrait"
             android:theme="@style/Aliwx_ContentOverlay_default" />
         <activity
             android:name="com.taobao.openimui.tribe.TribeSystemMessageActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/Aliwx_ContentOverlay_default" />
+        <activity
+            android:name="com.taobao.openimui.contact.ContactSystemMessageActivity"
+            android:theme="@style/Aliwx_ContentOverlay_default" />
+        <activity
+            android:name="com.taobao.openimui.contact.FindContactActivity"
             android:theme="@style/Aliwx_ContentOverlay_default" />
         <activity
             android:name="com.taobao.openimui.tribe.EditMyTribeProfileActivity"
@@ -150,16 +162,22 @@
             android:theme="@style/Aliwx_ContentOverlay_default" />
         <activity
             android:name="com.taobao.openimui.sample.SelectContactToSendCardActivity"
+            android:screenOrientation="portrait"
             android:theme="@style/Aliwx_ContentOverlay_default" />
         <activity
             android:name="com.taobao.openimui.tribe.TribePersonalSettingActivity"
+            android:screenOrientation="portrait"
             android:theme="@style/Aliwx_ContentOverlay_default" />
         <activity
             android:name="com.taobao.openimui.sample.ContactSettingActivity"
-            android:label="@string/title_activity_contact_setting" />
+            android:label="@string/title_activity_contact_setting"
+            android:screenOrientation="portrait"
+            android:theme="@style/Aliwx_ContentOverlay_default" />
         <activity
             android:name="com.taobao.openimui.sample.TribeMsgRecTypeSetActivity"
-            android:label="@string/title_activity_tribe_msg_rec_type_set" />
+            android:label="@string/title_activity_tribe_msg_rec_type_set"
+            android:screenOrientation="portrait"
+            android:theme="@style/Aliwx_ContentOverlay_default" />
         <activity
             android:name="com.alibaba.mobileim.kit.imageviewer.ShowImageActivity"
             android:hardwareAccelerated="false"

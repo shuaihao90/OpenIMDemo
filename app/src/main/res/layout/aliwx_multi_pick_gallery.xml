@@ -21,35 +21,39 @@
 
         <RelativeLayout
             android:layout_width="wrap_content"
-            android:layout_height="fill_parent"
+            android:layout_height="match_parent"
             android:layout_gravity="right|center_vertical"
-            android:layout_marginRight="@dimen/aliwx_column_up_unit_margin" >
-
-            <Button
-                android:id="@+id/finish"
-                android:layout_width="wrap_content"
-                android:layout_height="30dp"
-                android:layout_centerVertical="true"
-                android:layout_marginLeft="9dp"
-                android:background="@drawable/aliwx_common_blue_btn_bg"
-                android:gravity="center"
-                android:singleLine="true"
-                android:text="发送"
-                android:textColor="@drawable/aliwx_btn_text_color"
-                android:textSize="@dimen/aliwx_common_text_size" />
+            android:layout_marginRight="@dimen/aliwx_button_parent_right_margin">
 
             <TextView
                 android:id="@+id/selected_count"
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:background="@drawable/aliwx_common_blue_oval_bg"
+                android:textSize="@dimen/aliwx_font_second_grade"
+                android:gravity="center"
+                android:layout_centerVertical="true"
+                android:focusable="false"
+                android:textColor="@color/aliwx_color_white"
+                android:visibility="gone"/>
+
+            <TextView
+                android:id="@+id/finish"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="3dp"
-                android:background="@drawable/aliwx_news_background"
                 android:gravity="center"
-                android:visibility="gone"
-                android:includeFontPadding="false"
-                android:text="12"
-                android:textSize="11sp" />
+                android:layout_toRightOf="@+id/selected_count"
+                android:layout_marginLeft="6dp"
+                android:layout_centerVertical="true"
+                android:layout_alignWithParentIfMissing="true"
+                android:focusable="false"
+                android:singleLine="true"
+                android:text="@string/aliwx_send"
+                android:textColor="@color/aliwx_color_blue"
+                android:textSize="@dimen/aliwx_font_first_grade"/>
+
         </RelativeLayout>
+
     </FrameLayout>
 
     <RelativeLayout

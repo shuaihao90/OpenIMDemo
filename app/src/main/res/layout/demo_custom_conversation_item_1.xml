@@ -14,6 +14,18 @@
         android:src="@drawable/aliwx_tribe_head_default"/>
 
     <TextView
+        android:id="@+id/unread"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="30dp"
+        android:layout_marginTop="5dp"
+        android:background="@drawable/aliwx_unread_hint"
+        android:gravity="center"
+        android:textColor="@android:color/white"
+        android:textSize="@dimen/aliwx_unread_text_size" />
+
+
+    <TextView
         android:id="@+id/name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

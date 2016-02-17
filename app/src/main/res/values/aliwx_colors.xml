@@ -90,4 +90,13 @@
     <color name="aliwx_color_gray_03">#CCCCCC</color>
     <color name="aliwx_color_white">#ffffff</color>
 
+    <color name="aliwx_color_blue_dark_with_alpha">#b2212c33</color>
+
+    <color name="aliwx_setting_line_color">#cccccc</color>
+    <color name="aliwx_setting_grey_bg_nor">#F0F0F0</color>
+
+    <color name="aliwx_default_indicator_page_color">#CCCCCC</color>
+    <color name="aliwx_default_indicator_fill_color">#999999</color>
+    <color name="aliwx_default_indicator_stroke_color">#999999</color>
+
 </resources>

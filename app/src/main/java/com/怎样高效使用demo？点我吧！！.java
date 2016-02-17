@@ -1,4 +1,4 @@
-
+package com;
 /**
  * 云旺的功能越来越多，DEMO为了全面展示云旺的功能也变得越来越复杂，开发者在DEMO中查找所需功能的示例代码的时候会比较吃力，为了解决以上问题，该文件横空出世！
  * 该文件主要介绍了DEMO中每个目录下的每个文件的具体功能，以便开发者可以通过阅读该文件快速定位DEMO中的示例代码，开发者查找所需功能时可以先在该文件查找关键字，然后找到对应的示例代码文件，最后到示例代码文件查看对应代码即可！
@@ -9,7 +9,10 @@
  *  {@link com.taobao.openimui.demo.DemoApplication}
  *      Application类，该类主要是执行IM的初始化，强烈建议开发者参考该类进行IM初始化
  *  {@link com.taobao.openimui.demo.FragmentTabs}
- *      Demo的主tab页面，该页面使用FragmentTabHost初始化四个tab：会话列表页面，联系人页面，群组页面，更多页面。如果开发者也是使用FragmentTabHost构建tab，可以参考该文件，否则可以忽略该文件；
+ *      Demo的主tab页面，该页面使用FragmentTabHost初始化四个tab：会话列表页面，联系人页面，群组页面，更多页面。同时，该页面还包含以下示例代码：
+ *          添加消息未读数监听；
+ *          添加群变更监听；
+ *          添加发送消息生命周期回调监听
  *  {@link com.taobao.openimui.demo.ContactsFragment}
  *     联系人页面，云旺目前不支持好友功能，该页面中的联系人都是本地写死的，因此该页面对开发者而言参考价值不大；该页面存在的主要意义是：开发者可以从该页面点击联系人打开聊天窗口，体验云旺的聊天页面；开发者在集成过程中可以忽略该文件
  *  {@link com.taobao.openimui.demo.TribeFragment}
@@ -90,6 +93,10 @@
  *      发送名片消息时选择联系人页面，开发者无需关心，可以忽略该文件
  *  {@link com.taobao.openimui.sample.SendAtMsgDetailUISample}
  *      自定义群@消息页面UI，该文件包含以下定制功能：定制群@消息标题栏
+ *
+ *  {@link com.taobao.openimui.sample.SelectTribeAtMemberSample}
+ *      自定义群@成员列表选择界面的TitleBar,可以参考该文件
+ *
  *  {@link com.taobao.openimui.sample.SmilyCustomSample}
  *      自定义表情示例代码，开发者自定义聊天窗口表情时请参考该文件
  *  {@link com.taobao.openimui.sample.TribeAdapterSample}

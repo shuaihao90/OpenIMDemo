@@ -57,10 +57,11 @@
             android:ellipsize="middle" />
 
         <View
+            android:id="@+id/divider_line"
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:background="@color/aliwx_divider_color"
-            android:layout_alignLeft="@id/aliwx_select_name"
+            android:layout_alignLeft="@id/aliwx_head"
             android:layout_alignParentBottom="true"/>
     </RelativeLayout>
 
