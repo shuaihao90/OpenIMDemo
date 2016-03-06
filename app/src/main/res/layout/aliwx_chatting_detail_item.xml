@@ -7,11 +7,15 @@
                 android:paddingLeft="@dimen/aliwx_large_padding"
                 android:paddingRight="@dimen/aliwx_large_padding">
 
-    <ViewStub
+    <TextView
         android:id="@+id/first_new_msg_notify"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout="@layout/aliwx_chatting_detail_first_new_msg_notify"/>
+        android:layout_centerHorizontal="true"
+        android:text="@string/aliwx_first_new_msg_notify"
+        android:textColor="@color/aliwx_color_gray_02"
+        android:textSize="@dimen/aliwx_font_third_grade"
+        android:visibility="gone"/>
 
     <include layout="@layout/aliwx_chatting_detail_item_time"/>
     <!-- left -->
@@ -97,6 +101,7 @@
             android:id="@+id/download_image_progress"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
             android:layout="@layout/aliwx_chatting_detail_download_image_progress"/>
 
         <!--<ViewStub-->
@@ -109,6 +114,7 @@
             android:id="@+id/left_custom_msg"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
             android:layout="@layout/aliwx_chatting_detail_custom_msg"/>
     </RelativeLayout>
 
@@ -173,6 +179,8 @@
         android:id="@+id/receive_state"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="3dip"
         android:layout_alignBottom="@id/left_content_layout"
         android:layout_alignTop="@id/left_content_layout"
         android:layout_toRightOf="@id/left_content_layout"
@@ -276,6 +284,8 @@
         android:id="@+id/send_state"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginRight="-26dp"
+        android:layout_centerVertical="true"
         android:layout_alignBottom="@id/right_content_layout"
         android:layout_alignTop="@id/right_content_layout"
         android:layout_toLeftOf="@id/right_content_layout"
@@ -284,15 +294,15 @@
     <!-- 发送状态进度 -->
     <ViewStub
         android:id="@+id/send_state_progress"
-        android:layout_width="20dip"
-        android:layout_height="20dip"
+        android:layout_width="15dip"
+        android:layout_height="15dip"
         android:layout_alignBottom="@id/right_content_layout"
         android:layout_alignTop="@id/right_content_layout"
         android:layout_centerVertical="true"
         android:layout_marginRight="-33dip"
-        android:layout_marginTop="14dip"
         android:layout_toLeftOf="@id/right_content_layout"
         android:gravity="center_vertical"
+        android:layout_centerInParent="true"
         android:layout="@layout/aliwx_chatting_detail_show_gif_progress"/>
 
     <!---@消息未读数展示，以及单聊消息的对方已读状态-->

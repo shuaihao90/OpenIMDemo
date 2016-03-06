@@ -38,7 +38,7 @@ public class ConversationListOperationCustomSample extends IMConversationListOpe
 
     /**
      * 返回自定义会话和群会话的头像 url
-     * 该方法只适用设置自定义会话和群会话的头像，设置单聊会话头像请参考{@link UserProfileSampleHelper}
+     * 该方法只适用设置自定义会话和群会话的头像，设置单聊会话头像请参考{@link com.taobao.openimui.sample.UserProfileSampleHelper}
      * @param fragment
      * @param conversation 会话 可以通过 conversation.getConversationId拿到用户设置的会话id以根据不同的逻辑显示不同的头像
      * @return
@@ -54,7 +54,7 @@ public class ConversationListOperationCustomSample extends IMConversationListOpe
 
     /**
      * 返回自定义会话和群会话的默认头像 如返回本地的 R.drawable.test
-     * 该方法只适用设置自定义会话和群会话的头像，设置单聊会话头像请参考{@link UserProfileSampleHelper}
+     * 该方法只适用设置自定义会话和群会话的头像，设置单聊会话头像请参考{@link com.taobao.openimui.sample.UserProfileSampleHelper}
      * @param fragment
      * @param conversation
      * @return
@@ -72,9 +72,6 @@ public class ConversationListOperationCustomSample extends IMConversationListOpe
             }else{
                 return R.drawable.aliwx_head_default;
             }
-
-
-
         }
         return 0;
     }
@@ -163,14 +160,47 @@ public class ConversationListOperationCustomSample extends IMConversationListOpe
 
     }
 
+    /**
+     * 定制会话点击事件，该方法可以定制所有的会话类型
+     * @param fragment     会话列表fragment
+     * @param conversation 当前点击的会话对象
+     * @return true: 使用用户自定义的点击事件  false：使用SDK默认的点击事件
+     */
     @Override
     public boolean onItemClick(Fragment fragment, YWConversation conversation) {
-//        Notification.showToastMsg(fragment.getActivity(), "你点击了该会话！");
+//        YWConversationType type = conversation.getConversationType();
+//        if (type == YWConversationType.P2P){
+//            //TODO 单聊会话点击事件
+//            return true;
+//        } else if (type == YWConversationType.Tribe){
+//            //TODO 群会话点击事件
+//            return true;
+//        } else if (type == YWConversationType.Custom){
+//            //TODO 自定义会话点击事件
+//            return true;
+//        }
         return false;
     }
 
+    /**
+     * 定制会话长按事件，该方法可以定制所有的会话类型
+     * @param fragment     会话列表fragment
+     * @param conversation 当前点击的会话对象
+     * @return  true: 使用用户自定义的长按事件  false：使用SDK默认的长按事件
+     */
     @Override
     public boolean onConversationItemLongClick(Fragment fragment, YWConversation conversation) {
+//        YWConversationType type = conversation.getConversationType();
+//        if (type == YWConversationType.P2P){
+//            //TODO 单聊会话长按事件
+//            return true;
+//        } else if (type == YWConversationType.Tribe){
+//            //TODO 群会话长按事件
+//            return true;
+//        } else if (type == YWConversationType.Custom){
+//            //TODO 自定义会话长按事件
+//            return true;
+//        }
         return false;
     }
 }

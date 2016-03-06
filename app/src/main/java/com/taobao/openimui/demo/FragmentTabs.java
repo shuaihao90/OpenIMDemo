@@ -487,7 +487,7 @@ public class FragmentTabs extends FragmentActivity {
             /**
              * 发送消息结束后回调
              * @param message   当前发送的消息
-             * @param sendState 消息发送状态，具体状态请参考{@link YWMessageType.SendState}
+             * @param sendState 消息发送状态，具体状态请参考{@link com.alibaba.mobileim.conversation.YWMessageType.SendState}
              */
             @Override
             public void onMessageLifeFinishSend(YWMessage message, YWMessageType.SendState sendState) {

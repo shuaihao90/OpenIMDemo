@@ -155,7 +155,7 @@ public class NotificationInitSampleHelper extends IMNotification{
 
     /**
      * 返回自定义提示音资源Id
-     * @return  提示音资源Id
+     * @return  提示音资源Id，返回0则使用SDK默认的提示音
      */
     @Override
     public int getNotificationSoundResId() {

@@ -40,7 +40,7 @@ public class UserProfileSampleHelper {
         if(imKit == null) {
             return;
         }
-        final IYWContactService contactManager = imKit.getIMCore().getContactService();
+        final IYWContactService contactManager = imKit.getContactService();
 
         //头像点击的回调（开发者可以按需设置）
         contactManager.setContactHeadClickCallback(new IYWContactHeadClickCallback() {

@@ -69,7 +69,7 @@ public class ContactsUICustomSample extends IMContactsUI {
         backButton.setVisibility(View.GONE);
         ImageView rightButton = (ImageView) customView.findViewById(R.id.title_button);
         rightButton.setVisibility(View.VISIBLE);
-        rightButton.setOnClickListener(new OnClickListener() {
+        rightButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 

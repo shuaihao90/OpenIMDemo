@@ -31,7 +31,7 @@
             android:id="@+id/reply_gridview_stub"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:inflatedId="@+id/reply_gridview"
+            android:inflatedId="@+id/reply_gridview_expand"
             android:layout="@layout/aliwx_chatting_expand_view_pager_layout"/>
 
         <ViewStub

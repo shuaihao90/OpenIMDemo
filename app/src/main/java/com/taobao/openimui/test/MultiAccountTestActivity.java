@@ -15,9 +15,11 @@ import android.widget.Toast;
 
 import com.alibaba.mobileim.IYWLoginService;
 import com.alibaba.mobileim.YWAPI;
+import com.alibaba.mobileim.YWConstants;
 import com.alibaba.mobileim.YWIMKit;
 import com.alibaba.mobileim.channel.event.IWxCallback;
 import com.alibaba.mobileim.channel.util.YWLog;
+import com.alibaba.mobileim.contact.YWContactFactory;
 import com.alibaba.mobileim.conversation.EServiceContact;
 import com.alibaba.mobileim.fundamental.widget.YWAlertDialog;
 import com.alibaba.mobileim.login.YWLoginState;
@@ -238,7 +240,9 @@ public class MultiAccountTestActivity extends Activity{
         test3.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = LoginSampleHelper.getInstance().getIMKit().getChattingActivityIntent("uid8");
+                EServiceContact contact = new EServiceContact("openim官方客服:android", 0);
+                contact.changeToMainAccount = false;
+                Intent intent = LoginSampleHelper.getInstance().getIMKit().getChattingActivityIntent(contact);
                 startActivity(intent);
             }
         });

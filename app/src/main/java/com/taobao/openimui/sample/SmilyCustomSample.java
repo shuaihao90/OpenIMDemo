@@ -31,18 +31,21 @@ public class SmilyCustomSample {
 
     private static void addSmilyMeanings(){
         List<String> list = YWSmilyMgr.getMeanings();
+        //在系统默认的表情基础上，追加自己的表情，当然也可以先list.clear()，只使用自己的表情
         list.add("测试表情");
         YWSmilyMgr.setMeanings(list);
     }
 
     private static void addShortCuts(){
         List<String> list = YWSmilyMgr.getShortCuts();
+        //在系统默认的表情基础上，追加自己的表情，当然也可以先list.clear()，只使用自己的表情
         list.add("<>:)-");
         YWSmilyMgr.setShortCuts(list);
     }
 
     private static void addSmily(){
         List<Integer> list = YWSmilyMgr.getSmilyRes();
+        //在系统默认的表情基础上，追加自己的表情，当然也可以先list.clear()，只使用自己的表情
         list.add(R.drawable.__leak_canary_icon);
         YWSmilyMgr.setSmilyRes(list);
     }

@@ -32,7 +32,7 @@ public class InitHelper {
 			LoginSampleHelper.getInstance().initSDK_Sample(application);
 
 			//后期将使用Override的方式进行集中配置，请参照YWSDKGlobalConfigSample
-			YWAPI.enableSDKLogOutput(false);
+			YWAPI.enableSDKLogOutput(true);
 
 		}
 	}

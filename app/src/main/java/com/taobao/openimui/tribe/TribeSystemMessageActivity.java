@@ -12,14 +12,18 @@ import android.widget.TextView;
 
 import com.alibaba.mobileim.YWIMKit;
 import com.alibaba.mobileim.channel.event.IWxCallback;
+import com.alibaba.mobileim.channel.util.WxLog;
 import com.alibaba.mobileim.conversation.IYWMessageListener;
 import com.alibaba.mobileim.conversation.YWConversation;
 import com.alibaba.mobileim.conversation.YWMessage;
+import com.alibaba.mobileim.lib.model.conversation.ConversationConstPrefix;
 import com.alibaba.mobileim.lib.model.message.YWSystemMessage;
 import com.alibaba.mobileim.tribe.IYWTribeService;
 import com.alibaba.openIMUIDemo.R;
 import com.taobao.openimui.demo.FragmentTabs;
 import com.taobao.openimui.sample.LoginSampleHelper;
+
+import org.apache.commons.logging.Log;
 
 import java.util.ArrayList;
 import java.util.List;

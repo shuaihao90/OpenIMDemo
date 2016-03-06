@@ -1,6 +1,7 @@
 package com.taobao.openimui.sample;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -166,7 +167,8 @@ public class ChattingOperationCustomSample extends IMChattingPageOperateion {
     private void showTransparentMessageDialog(Activity context, final YWConversation conversation){
         View view = View.inflate(context, R.layout.demo_dialog_transparent_message, null);
         final EditText text = (EditText) view.findViewById(R.id.content);
-        new YWAlertDialog.Builder(context).setTitle("阅后即焚")
+        AlertDialog ad = new AlertDialog.Builder(context)
+                .setTitle("阅后即焚")
                 .setView(view)
                 .setPositiveButton("确定", new DialogInterface.OnClickListener() {
                     @Override
@@ -190,7 +192,16 @@ public class ChattingOperationCustomSample extends IMChattingPageOperateion {
                         conversation.getMessageSender().sendMessage(message, 120, null);
                         dialog.dismiss();
                     }
-                }).show();
+                })
+                .setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                }).create();
+        if (!ad.isShowing()){
+            ad.show();
+        }
     }
 
     /**
