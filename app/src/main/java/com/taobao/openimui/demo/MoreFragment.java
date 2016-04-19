@@ -9,6 +9,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +18,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.alibaba.mobileim.FeedbackAPI;
 import com.alibaba.mobileim.IYWLoginService;
 import com.alibaba.mobileim.YWIMKit;
 import com.alibaba.mobileim.channel.event.IWxCallback;
@@ -40,10 +42,7 @@ import com.taobao.openimui.test.MultiAccountTestActivity;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -76,6 +75,35 @@ public class MoreFragment extends Fragment implements View.OnClickListener {
             return;
         }
         mUserId = mIMKit.getIMCore().getLoginUserId();
+
+
+
+        try {
+            JSONObject testJson=new JSONObject("{\"device_manufacturer\":\"HTC\",\"os\":\"Android\",\"send_id\":\"iwangxinopenimtest16\",\"access_subtype\":\"Unknown\",\"msg_type\":0,\"package\":\"com.alibaba.openIMUIDemo\",\"app_version\":\"1.0\",\"sdk_version\":\"1.0\",\"resolution\":\"1920x1080\",\"device_brand\":\"htc\",\"access\":\"Wi-Fi\",\"os_version\":\"4.4.4\",\"message\":\"ufjcjmv\",\"device_model\":\"One\",\"send_time\":1452064725,\"device_uuid\":\"b3e94f6c-336f-e4fd-f40d-080938100f2a\",\"msg_id\":6269105843813482506,\"carrier\":\"\",\"device_board\":\"m7\",\"feedback_message_attri\":\"{\\\"key\\\":\\\"value\\\"}\",\"parent_id\":\"6269105843803324425\"}");
+            String jsondevice_manufacturer=testJson.optString("device_manufacturer");
+
+
+            JSONObject jsonObject1=new JSONObject("{\n" +
+                    "   \"msg\" : {\n" +
+                    "      \"appkey\" : \"4272\",\n" +
+                    " \n" +
+                    "      \"content\" : \"{\\\"device_manufacturer\\\":\\\"HTC\\\",\\\"os\\\":\\\"Android\\\",\\\"send_id\\\":\\\"iwangxinopenimtest16\\\",\\\"access_subtype\\\":\\\"Unknown\\\",\\\"msg_type\\\":0,\\\"package\\\":\\\"com.alibaba.openIMUIDemo\\\",\\\"app_version\\\":\\\"1.0\\\",\\\"sdk_version\\\":\\\"1.0\\\",\\\"resolution\\\":\\\"1920x1080\\\",\\\"device_brand\\\":\\\"htc\\\",\\\"access\\\":\\\"Wi-Fi\\\",\\\"os_version\\\":\\\"4.4.4\\\",\\\"message\\\":\\\"ufjcjmv\\\",\\\"device_model\\\":\\\"One\\\",\\\"send_time\\\":1452064725,\\\"device_uuid\\\":\\\"b3e94f6c-336f-e4fd-f40d-080938100f2a\\\",\\\"msg_id\\\":626910584381348 \n" +
+                    "2506,\\\"carrier\\\":\\\"\\\",\\\"device_board\\\":\\\"m7\\\",\\\"feedback_message_attri\\\":\\\"{\\\\\\\"key\\\\\\\":\\\\\\\"value\\\\\\\"}\\\",\\\"parent_id\\\":\\\"6269105843803324425\\\"}\",\n" +
+                    "      \"fromId\" : \"iwangxinopenimtest16\",\n" +
+                    "      \"msgId\" : \"6269105843813482506\",\n" +
+                    "      \"sendTime\" : \"1452064726\",\n" +
+                    "      \"toId\" : \"iwangxin_feedback_service_account_\"\n" +
+                    "   },\n" +
+                    "   \"type\" : \"feedback\"\n" +
+                    "} ");
+
+            JSONObject msg=jsonObject1.optJSONObject("msg");
+            String content=msg.optString("content");
+
+            Log.d("test","content:"+content);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -100,6 +128,9 @@ public class MoreFragment extends Fragment implements View.OnClickListener {
         more2.setOnClickListener(this);
         more3 = mView.findViewById(R.id.more3);
         more3.setOnClickListener(this);
+
+        View more4 = mView.findViewById(R.id.more4);
+        more4.setOnClickListener(this);
 
         TextView getBlackList = (TextView) mView.findViewById(R.id.sync_black_list);
         getBlackList.setOnClickListener(new View.OnClickListener() {
@@ -205,10 +236,19 @@ public class MoreFragment extends Fragment implements View.OnClickListener {
                 break;
             case R.id.more3:
                 EServiceContact contact = new EServiceContact("openim官方客服", 0);//
-                final YWIMKit imKit = LoginSampleHelper.getInstance().getIMKit();
+                YWIMKit imKit = LoginSampleHelper.getInstance().getIMKit();
                 Intent intent = imKit.getChattingActivityIntent(contact);
                 startActivity(intent);
                 break;
+            case R.id.more4:
+//                imKit = LoginSampleHelper.getInstance().getIMKit();
+                intent = FeedbackAPI.getFeedbackActivityIntent();
+                if (intent != null) {
+                    startActivity(intent);
+                }
+
+                break;
+
             // 该示例为了简单起见没有对通知栏消息设置做持久化，这会导致用户退出重登或者应用被杀死再次启动后用户设置失效。
             // 开发者在使用时最好对用户设置进行持久化存储，例如保存到SharedPreferences或者数据库中。
             case R.id.setting_sound_layout:

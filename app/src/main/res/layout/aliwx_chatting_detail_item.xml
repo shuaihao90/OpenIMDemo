@@ -70,7 +70,7 @@
             style="@style/aliwx_chatting_detail_text_left_style"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:autoLink="web|phone"
+            android:autoLink="web|email"
             android:focusable="false"
             android:focusableInTouchMode="false"
             android:gravity="center_vertical"
@@ -169,7 +169,7 @@
         android:layout_height="wrap_content"
         android:layout_alignBottom="@id/left_content_layout"
         android:layout_alignTop="@id/left_content_layout"
-        android:layout_marginLeft="-16dip"
+        android:layout_marginLeft="-26dip"
         android:layout_toRightOf="@id/left_content_layout"
         android:layout="@layout/aliwx_chatting_detail_audio_unread"/>
 
@@ -220,7 +220,7 @@
             style="@style/aliwx_chatting_detail_text_right_style"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:autoLink="web|phone"
+            android:autoLink="web|email"
             android:gravity="center_vertical"
             android:textColor="@color/aliwx_white"
             android:textColorHighlight="@android:color/transparent"

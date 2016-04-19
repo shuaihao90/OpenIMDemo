@@ -2,12 +2,17 @@ package com.taobao.openimui.demo;
 
 import android.app.Application;
 import android.content.Context;
-import android.support.multidex.MultiDexApplication;
+//import android.support.multidex.MultiDexApplication;
 
+import com.alibaba.mobileim.FeedbackAPI;
+import com.alibaba.mobileim.YWAPI;
 import com.alibaba.wxlib.util.SysUtil;
 import com.taobao.openimui.sample.InitHelper;
 
-public class DemoApplication extends MultiDexApplication {
+import org.json.JSONException;
+import org.json.JSONObject;
+
+public class DemoApplication extends Application {
 	//云旺OpenIM的DEMO用到的Application上下文实例
 	private static Context sContext;
 	public static Context getContext(){
@@ -27,7 +32,12 @@ public class DemoApplication extends MultiDexApplication {
 		//初始化云旺SDK
 		InitHelper.initYWSDK(this);
 
+		//初始化反馈功能(未使用反馈功能的用户无需调用该初始化)
+
+		InitHelper.initFeedBack(this);
 	}
+
+
 
 	private boolean mustRunFirstInsideApplicationOnCreate() {
 		//必须的初始化

@@ -6,6 +6,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 
 import com.alibaba.mobileim.channel.util.YWLog;
+import com.alibaba.mobileim.kit.chat.ChattingFragment;
 import com.alibaba.openIMUIDemo.R;
 
 /**
@@ -46,5 +47,20 @@ public class ChattingFragmentSample extends FragmentActivity{
         if (mCurrentFrontFragment != null) {
             mCurrentFrontFragment.onActivityResult(arg0, arg1, arg2);
         }
+    }
+    /**
+     * 必须实现该方法，且该方法的实现必须跟以下示例代码完全一致！
+     */
+    @Override
+    public void onBackPressed() {
+
+        if (mCurrentFrontFragment != null && mCurrentFrontFragment.isVisible()) {
+
+            if (mCurrentFrontFragment instanceof ChattingFragment &&((ChattingFragment)mCurrentFrontFragment).onBackPressed()) {
+                return;
+            }
+        }
+
+        super.onBackPressed();
     }
 }

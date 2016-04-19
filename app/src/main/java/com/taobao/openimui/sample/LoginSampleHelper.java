@@ -2,6 +2,7 @@ package com.taobao.openimui.sample;
 
 import android.app.Application;
 import android.content.Intent;
+import android.os.Debug;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.widget.Toast;
@@ -19,6 +20,8 @@ import com.alibaba.mobileim.channel.LoginParam;
 import com.alibaba.mobileim.channel.event.IWxCallback;
 import com.alibaba.mobileim.channel.util.YWLog;
 import com.alibaba.mobileim.contact.IYWContact;
+import com.alibaba.mobileim.contact.IYWContactCacheUpdateListener;
+import com.alibaba.mobileim.contact.IYWContactOperateNotifyListener;
 import com.alibaba.mobileim.conversation.IYWConversationService;
 import com.alibaba.mobileim.conversation.YWCustomMessageBody;
 import com.alibaba.mobileim.conversation.YWMessage;
@@ -36,6 +39,8 @@ import com.alibaba.openIMUIDemo.LoginActivity;
 import com.alibaba.tcms.env.YWEnvManager;
 import com.alibaba.tcms.env.YWEnvType;
 import com.taobao.openimui.common.Notification;
+import com.taobao.openimui.contact.ContactCacheUpdateListenerImpl;
+import com.taobao.openimui.contact.ContactOperateNotifyListenerImpl;
 import com.taobao.openimui.demo.DemoApplication;
 
 import org.json.JSONException;
@@ -62,7 +67,10 @@ public class LoginSampleHelper {
     public static  String APP_KEY = "23015524";
 
     //以下两个内容是测试环境使用，开发无需关注
-    public static final String APP_KEY_TEST = "4272";  //60026702
+//    public static final String APP_KEY_TEST = "4272";  //60026702
+
+    public static final String APP_KEY_TEST = "60028148";  //60026702
+
 
     public static YWEnvType sEnvType = YWEnvType.ONLINE;
 
@@ -83,9 +91,12 @@ public class LoginSampleHelper {
     }
 
     public void initIMKit(String userId, String appKey) {
-        mIMKit = YWAPI.getIMKitInstance(userId.toString(), appKey);
+        mIMKit = YWAPI.getIMKitInstance(userId, appKey);
         addConnectionListener();
         addPushMessageListener();
+        //添加联系人通知和更新监听 todo 在初始化后、登录前添加监听，离线的联系人系统消息才能触发监听器
+        addContactListeners();
+
     }
 
     private YWLoginState mAutoLoginState = YWLoginState.idle;
@@ -106,7 +117,6 @@ public class LoginSampleHelper {
     public void initSDK_Sample(Application context) {
         mApp = context;
         sEnvType = YWEnvManager.getEnv(context);
-
         //初始化IMKit
 		final String userId = IMAutoLoginInfoStoreUtil.getLoginUserId();
 		final String appkey = IMAutoLoginInfoStoreUtil.getAppkey();
@@ -114,7 +124,7 @@ public class LoginSampleHelper {
 //		final String userId = IMAutoLoginInfoStoreUtil.getLoginUserId();
 			LoginSampleHelper.getInstance().initIMKit(userId, appkey);
 //		final String appkey = IMAutoLoginInfoStoreUtil.getAppkey();
-			NotificationInitSampleHelper.init();
+//			NotificationInitSampleHelper.init();//重复初始化了
 		}
 //		if (!TextUtils.isEmpty(userId) && !TextUtils.isEmpty(appkey)){
         TcmsEnvType type = EnvManager.getInstance().getCurrentEnvType(mApp);
@@ -141,7 +151,6 @@ public class LoginSampleHelper {
                 YWSmilyMgr.setSmilyInitNotify(null);
             }
         });
-
     }
 
     //将自动登录的状态广播出去
@@ -238,6 +247,39 @@ public class LoginSampleHelper {
         //添加群聊消息监听，先删除再添加，以免多次添加该监听
         conversationService.removeTribePushListener(mTribeListener);
         conversationService.addTribePushListener(mTribeListener);
+    }
+
+    private IYWContactOperateNotifyListener mContactOperateNotifyListener = new ContactOperateNotifyListenerImpl();
+
+    private IYWContactCacheUpdateListener mContactCacheUpdateListener = new ContactCacheUpdateListenerImpl();
+
+    /**
+     * 联系人相关操作通知回调，SDK使用方可以实现此接口来接收联系人操作通知的监听
+     * 所有方法都在UI线程调用
+     * SDK会自动处理这些事件，一般情况下，用户不需要监听这个事件
+     * @author shuheng
+     *
+     */
+    private void addContactListeners(){
+        //添加联系人通知和更新监听，先删除再添加，以免多次添加该监听
+        removeContactListeners();
+        if(mIMKit!=null){
+            if(mContactOperateNotifyListener!=null)
+                mIMKit.getContactService().addContactOperateNotifyListener(mContactOperateNotifyListener);
+            if(mContactCacheUpdateListener!=null)
+                mIMKit.getContactService().addContactCacheUpdateListener(mContactCacheUpdateListener);
+
+        }
+    }
+
+    private void removeContactListeners(){
+        if(mIMKit!=null){
+            if(mContactOperateNotifyListener!=null)
+                mIMKit.getContactService().removeContactOperateNotifyListener(mContactOperateNotifyListener);
+            if(mContactCacheUpdateListener!=null)
+                mIMKit.getContactService().removeContactCacheUpdateListener(mContactCacheUpdateListener);
+
+        }
     }
 
     private IYWP2PPushListener mP2PListener = new IYWP2PPushListener() {

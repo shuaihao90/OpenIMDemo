@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import android.content.Context;
 import android.content.Intent;
 import android.widget.Toast;
 
@@ -47,6 +48,11 @@ public class UserProfileSampleHelper {
             @Override
             public Intent onShowProfileActivity(String userId, String appKey) {
                 Toast.makeText(DemoApplication.getContext(), String.format("你点击了 %s 的头像哦~", userId), Toast.LENGTH_SHORT).show();
+                return null;
+            }
+
+            @Override
+            public Intent onDisposeProfileHeadClick(Context context, String userId, String appKey) {
                 return null;
             }
         });
@@ -145,7 +151,7 @@ public class UserProfileSampleHelper {
 //        }
 //        return  false;
 
-        return true;
+        return false;
     }
 
     // 这个只是个示例，开发者需要自己管理用户昵称和头像

@@ -2,12 +2,15 @@ package com.taobao.openimui.sample;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.support.v4.app.Fragment;
+import android.text.ClipboardManager;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
@@ -83,12 +86,24 @@ public class ChattingOperationCustomSample extends IMChattingPageOperateion {
     public boolean onUrlClick(Fragment fragment, YWMessage message, String url,
                               YWConversation conversation) {
         Notification.showToastMsgLong(fragment.getActivity(), "用户点击了url:" + url);
-
+        if(!url.startsWith("http")) {
+            url = "http://" + url;
+        }
         Intent intent = new Intent(Intent.ACTION_VIEW);
         intent.setData(Uri.parse(url));
         fragment.startActivity(intent);
 
         return true;
+    }
+
+    /**
+     * 是否显示默认的Item，照片，相册
+     * @param conversation
+     * @return
+     */
+    @Override
+    public boolean showDefaultBarItems(YWConversation conversation){
+        return true;//显示
     }
 
     private static int ITEM_ID_1 = 0x1;
@@ -665,10 +680,11 @@ public class ChattingOperationCustomSample extends IMChattingPageOperateion {
      * 当打开聊天窗口时，自动发送该消息给对方
      * @param fragment      聊天窗口fragment
      * @param conversation  当前会话
+     * @param isConversationFirstCreated  是否是首次创建
      * @return 自动发送的消息（注意，内容empty则不自动发送）
      */
     @Override
-    public YWMessage ywMessageToSendWhenOpenChatting(Fragment fragment, YWConversation conversation) {
+    public YWMessage ywMessageToSendWhenOpenChatting(Fragment fragment, YWConversation conversation, boolean isConversationFirstCreated) {
 //        YWMessageBody messageBody = new YWMessageBody();
 //        messageBody.setSummary("WithoutHead");
 //        messageBody.setContent("hi，我是单聊自定义消息之好友名片");
@@ -855,4 +871,57 @@ public class ChattingOperationCustomSample extends IMChattingPageOperateion {
         return true;
     }
 
+    /**
+     * 数字字符串点击事件,开发者可以根据自己的需求定制
+     * @param activity
+     * @param clickString 被点击的数字string
+     * @param widget 被点击的TextView
+     * @return false:不处理
+     *         true:需要开发者在return前添加自己实现的响应逻辑代码
+     */
+    @Override
+    public boolean onNumberClick(final Activity activity, final String clickString, final View widget) {
+        ArrayList<String> menuList = new ArrayList<String>();
+        menuList.add("呼叫");
+        menuList.add("添加到手机通讯录");
+        menuList.add("复制到剪贴板");
+        final String[] items = new String[menuList.size()];
+        menuList.toArray(items);
+        Dialog alertDialog = new WxAlertDialog.Builder(activity)
+                .setItems(items, new DialogInterface.OnClickListener() {
+
+                    @Override
+                    public void onClick(DialogInterface dialog,
+                                        int which) {
+                        if (TextUtils.equals(items[which], "呼叫")) {
+                            Intent intent = new Intent(Intent.ACTION_DIAL);
+                            intent.setData(Uri.parse("tel:" + clickString));
+                            activity.startActivity(intent);
+                        } else if (TextUtils.equals(items[which], "添加到手机通讯录")) {
+                            Intent intent = new Intent(Intent.ACTION_INSERT_OR_EDIT);
+                            intent.setType("vnd.android.cursor.item/person");
+                            intent.setType("vnd.android.cursor.item/contact");
+                            intent.setType("vnd.android.cursor.item/raw_contact");
+                            intent.putExtra(android.provider.ContactsContract.Intents.Insert.PHONE, clickString);
+                            activity.startActivity(intent);
+
+                        } else if (TextUtils.equals(items[which], "复制到剪贴板")) {
+                            ClipboardManager clipboardManager = (ClipboardManager) activity.getSystemService(Context.CLIPBOARD_SERVICE);
+                            clipboardManager.setText(clickString);
+                        }
+                    }
+                }).create();
+        alertDialog.setCanceledOnTouchOutside(true);
+        alertDialog.setCancelable(true);
+        alertDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialog) {
+                widget.invalidate();
+            }
+        });
+        if (!alertDialog.isShowing()) {
+            alertDialog.show();
+        }
+        return true;
+    }
 }

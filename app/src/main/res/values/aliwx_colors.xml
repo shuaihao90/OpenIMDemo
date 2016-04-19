@@ -88,6 +88,8 @@
     <color name="aliwx_color_gray_01">#525252</color>
     <color name="aliwx_color_gray_02">#999999</color>
     <color name="aliwx_color_gray_03">#CCCCCC</color>
+    <color name="aliwx_color_gray_04">#EEEEEE</color>
+
     <color name="aliwx_color_white">#ffffff</color>
 
     <color name="aliwx_color_blue_dark_with_alpha">#b2212c33</color>

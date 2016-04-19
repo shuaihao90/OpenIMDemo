@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
@@ -26,10 +27,18 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.alibaba.mobileim.FeedbackAPI;
+import com.alibaba.mobileim.IYWLoginService;
+import com.alibaba.mobileim.YWAPI;
 import com.alibaba.mobileim.YWChannel;
 import com.alibaba.mobileim.YWConstants;
 import com.alibaba.mobileim.YWIMKit;
+import com.alibaba.mobileim.YWLoginParam;
+import com.alibaba.mobileim.channel.HttpChannel;
+import com.alibaba.mobileim.channel.IMChannel;
 import com.alibaba.mobileim.channel.event.IWxCallback;
+import com.alibaba.mobileim.channel.util.DeviceInfoHelper;
+import com.alibaba.mobileim.channel.util.WxLog;
 import com.alibaba.mobileim.channel.util.YWLog;
 import com.alibaba.mobileim.conversation.IYWConversationService;
 import com.alibaba.mobileim.conversation.YWConversation;
@@ -38,6 +47,8 @@ import com.alibaba.mobileim.conversation.YWMessageChannel;
 import com.alibaba.mobileim.fundamental.widget.YWAlertDialog;
 import com.alibaba.mobileim.login.YWLoginCode;
 import com.alibaba.mobileim.login.YWLoginState;
+import com.alibaba.mobileim.login.YWPwdType;
+import com.alibaba.mobileim.utility.AccountInfoTools;
 import com.alibaba.mobileim.utility.IMNotificationUtils;
 import com.alibaba.mobileim.utility.IMPrefsTools;
 import com.alibaba.tcms.client.ServiceChooseHelper;
@@ -52,6 +63,12 @@ import com.taobao.openimui.sample.LoginSampleHelper;
 import com.taobao.openimui.sample.NotificationInitSampleHelper;
 import com.taobao.openimui.sample.UserProfileSampleHelper;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.Random;
 
 public class LoginActivity extends Activity {
@@ -69,6 +86,9 @@ public class LoginActivity extends Activity {
     private Handler handler = new Handler(Looper.getMainLooper());
     private ImageView lg;
     public static String APPKEY;
+    private Button annoyloginButton;
+    private int mClickCount=0;
+
 
     public static final String AUTO_LOGIN_STATE_ACTION = "com.openim.autoLoginStateActionn";
 
@@ -87,6 +107,8 @@ public class LoginActivity extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+
         setContentView(R.layout.demo_login);
         loginHelper = LoginSampleHelper.getInstance();
         userIdView = (EditText) findViewById(R.id.account);
@@ -118,7 +140,9 @@ public class LoginActivity extends Activity {
             }
         }else if(LoginSampleHelper.sEnvType == YWEnvType.TEST){
             if (TextUtils.isEmpty(userIdView.getText())){
-                userIdView.setText("openimtest20");
+                Random r=new Random();
+                int suffix=Math.abs(r.nextInt()%100);
+                userIdView.setText("fk"+suffix);
             }
             if (TextUtils.isEmpty(passwordView.getText())){
                 passwordView.setText("taobao1234");
@@ -126,6 +150,7 @@ public class LoginActivity extends Activity {
             if (TextUtils.isEmpty(appKeyView.getText())){
                 appKeyView.setText(LoginSampleHelper.APP_KEY_TEST);
             }
+
         }else if(LoginSampleHelper.sEnvType == YWEnvType.PRE){
             if (TextUtils.isEmpty(userIdView.getText())){
                 userIdView.setText("testpro74");
@@ -148,6 +173,8 @@ public class LoginActivity extends Activity {
 //				CustomMessageSampleHelper.initHandler();
 
         loginButton = (Button) findViewById(R.id.login);
+        annoyloginButton = (Button) findViewById(R.id.annoylogin);
+
 
         Bitmap logo = BitmapFactory.decodeResource(getResources(),
                 R.drawable.login_logo);
@@ -259,6 +286,59 @@ public class LoginActivity extends Activity {
                 return true;
             }
         });
+        View copyRight = findViewById(R.id.copy_right);
+        copyRight.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ++mClickCount;
+                if(mClickCount%5==0){
+                    String account = userIdView.getText().toString();
+                    if (TextUtils.isEmpty(account)) {
+                        final SharedPreferences defalultSprefs = getSharedPreferences(
+                                "ywPrefsTools", Context.MODE_PRIVATE);
+                        String annoyUid = defalultSprefs.getString("annoy_uid", "");
+                        account = annoyUid;
+                    }
+                    FeedbackAPI.getFeedbackUnreadCount(account, new IWxCallback() {
+                        @Override
+                        public void onSuccess(final Object... result) {
+                            if (result != null && result.length == 1 && result[0] instanceof Integer) {
+                                handler.post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        int count = (Integer) result[0];
+                                        Toast toast = Toast.makeText(LoginActivity.this, "未读数：" + count, Toast.LENGTH_SHORT);
+                                        toast.show();
+                                    }
+                                });
+                            }
+                        }
+
+                        @Override
+                        public void onError(int code, String info) {
+
+                        }
+
+                        @Override
+                        public void onProgress(int progress) {
+
+                        }
+                    });
+
+                }
+            }
+        });
+
+
+        annoyloginButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                loginHelper.loginOut_Sample();
+
+                annoyLogin();
+            }
+        });
+
     }
 
 
@@ -487,6 +567,10 @@ public class LoginActivity extends Activity {
                                     YWEnvManager.prepare(DemoApplication.getContext(), envType);
                                     IMNotificationUtils.showToast("切换环境，程序退出，请再次启动", LoginActivity.this);
                                     ServiceChooseHelper.exitService(LoginActivity.this);//xianzhen: service must restart too.
+
+                                    AccountInfoTools.saveAnnoyAccount("", "");
+
+
                                     handler.postDelayed(new Runnable() {
                                         @Override
                                         public void run() {
@@ -505,4 +589,137 @@ public class LoginActivity extends Activity {
         }
         dialog.show();
     }
+
+
+
+    private void annoyLogin() {
+        String[] annoyAccountPw = AccountInfoTools.getAnnoyAccount();
+        if (annoyAccountPw != null && annoyAccountPw.length == 2 && !TextUtils.isEmpty(annoyAccountPw[0]) && !TextUtils.isEmpty(annoyAccountPw[1])) {
+            String uid = annoyAccountPw[0];
+            String pw = annoyAccountPw[1];
+            WxLog.d("test", "annoy account:" + uid + "  " + pw);
+
+            doAnnoyLogin(uid, pw);
+        } else {
+            Map<String, String> params = new HashMap<String, String>();
+            params.put("prefix", AccountInfoTools.getPrefix(YWAPI.getAppKey()));
+            Map<String, String> loginDeviceInfomap = DeviceInfoHelper.getLoginDeviceInfo(IMChannel.getApplication());
+            Iterator<Map.Entry<String, String>> iterator = loginDeviceInfomap.entrySet().iterator();
+            JSONObject deviceInfoJsonObj = new JSONObject();
+            while (iterator.hasNext()) {
+                Map.Entry<String, String> entry = iterator.next();
+                try {
+                    deviceInfoJsonObj.put(entry.getKey(), entry.getValue());
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+            params.put("deviceinfo", deviceInfoJsonObj.toString());
+            IWxCallback callback = new IWxCallback() {
+                @Override
+                public void onSuccess(Object... result) {
+                    if (result != null && result.length > 0 && result[0] instanceof String) {
+                        String resultStr = (String) result[0];
+                        try {
+                            JSONObject resultJson = new JSONObject(resultStr);
+                            int retcode = resultJson.optInt("retcode");
+                            if (retcode == 0) {
+                                String userid = resultJson.optString("userid");
+                                String password = resultJson.optString("password");
+
+                                AccountInfoTools.saveAnnoyAccount(userid, password);
+
+                                doAnnoyLogin(userid, password);
+                                return;
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        onError(IWxCallback.ERROR, "");
+                    }
+                }
+
+                @Override
+                public void onError(int code, String info) {
+
+                }
+
+                @Override
+                public void onProgress(int progress) {
+
+                }
+            };
+            HttpChannel.getInstance().asyncPostRequest(HttpChannel.getAnnoyDomain() + "openim/getanonymous", params, callback);
+        }
+    }
+
+
+    private void doAnnoyLogin(String mUid, String mPw) {
+        YWIMKit mIMKit = YWAPI.getIMKitInstance();
+        IYWLoginService mLoginService = mIMKit.getLoginService();
+        String prefix = AccountInfoTools.getPrefix(YWAPI.getAppKey());
+
+        if (!TextUtils.isEmpty(prefix) && mUid!=null&&mUid.startsWith(prefix)) {
+            mUid = mUid.substring(8);
+        }
+        YWLoginParam loginParam = YWLoginParam.createLoginParam(mUid,
+                mPw);
+        Map<String, String> deviceInfo = DeviceInfoHelper.getLoginDeviceInfo(IMChannel.getApplication());
+        Iterator<Map.Entry<String, String>> iterator = deviceInfo.entrySet().iterator();
+        JSONObject attrJson = new JSONObject();
+        try {
+            while (iterator.hasNext()) {
+                Map.Entry<String, String> entry = iterator.next();
+
+                attrJson.put(entry.getKey(), entry.getValue());
+
+            }
+            Map<String, String> attrsMap = new HashMap<String, String>();
+            attrsMap.put("deviceinfo", attrJson.toString());
+            loginParam.setAttrs(attrsMap);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        loginParam.setPwdType(YWPwdType.annoy);
+        mLoginService.login(loginParam, mloginCallback);
+    }
+
+    private IWxCallback mloginCallback = new IWxCallback() {
+        @Override
+        public void onSuccess(Object... result) {
+            WxLog.d("test", "Feedback login success");
+
+//            Intent intent = new Intent(YWChannel.getApplication(),
+//                    WxChattingActvity.class);
+//            intent.putExtra(ChattingDetailPresenter.EXTRA_USERID, mActIntent.getStringExtra(ChattingDetailPresenter.EXTRA_USERID));
+//            intent.putExtra(ChattingDetailPresenter.EXTRA_APPKEY, mActIntent.getStringExtra(ChattingDetailPresenter.EXTRA_APPKEY));
+//            intent.putExtra(ChattingDetailPresenter.EXTRA_CVS_TYPE,
+//                    mActIntent.getIntExtra(ChattingDetailPresenter.EXTRA_CVS_TYPE, YWConversationType.P2P.getValue()));
+//            intent.putExtra(YWAccountType.class.getSimpleName(),
+//                    mActIntent.getIntExtra(YWAccountType.class.getSimpleName(), YWAccountType.open.getValue()));
+//            startActivity(intent);
+//            finish();
+//            YWIMKit imKit = LoginSampleHelper.getInstance().getIMKit();
+            Intent intent = FeedbackAPI.getFeedbackActivityIntent();
+            if(intent!=null) {
+                startActivity(intent);
+                LoginActivity.this.finish();
+            }
+        }
+        @Override
+        public void onError(int code, String info) {
+            WxLog.d("test", "Feedback  login fail");
+            handler.post(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(LoginActivity.this,"登录失败",Toast.LENGTH_SHORT);
+                    finish();
+                }
+            });
+        }
+        @Override
+        public void onProgress(int progress) {
+
+        }
+    };
 }

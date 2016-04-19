@@ -4,9 +4,7 @@
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
                 android:layout_gravity="center"
-                android:background="@color/aliwx_common_bg_white_color"
-                android:clipToPadding="true"
-                android:fitsSystemWindows="true">
+                android:background="@color/aliwx_common_bg_white_color">
 
     <LinearLayout
         android:id="@+id/title_layout"
@@ -73,6 +71,9 @@
             android:weightSum="2"/>
     </LinearLayout>
 
+    <!--修改reply_bar_layout布局类型时,记得修改ChattingReplyBar中的
+    setChattingInputEditTextCustomHeight()方法中关于该LayoutParams类型
+    的使用,否则会有类转型错误-->
     <LinearLayout
         android:id="@+id/reply_bar_layout"
         android:layout_width="fill_parent"

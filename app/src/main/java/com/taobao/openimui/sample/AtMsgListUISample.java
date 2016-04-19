@@ -69,6 +69,17 @@ public class AtMsgListUISample extends IMTribeAtPageUI {
     }
 
     /**
+     * 设置自定义Tab Indicator的颜色值，请使R.color.xxx格式的颜色Id传值
+     * 如果想要设置选中和非选中文字效果，请使用selector类型的R.color.xxx格式
+     * @return
+     *      颜色资源Id
+     */
+    @Override
+    public int getCustomAtMsgTabTextColorId() {
+        return 0;
+    }
+
+    /**
      * 设置自定义我收到的@消息Tab图标，请使用R.drawable.xxx格式的图片资源Id传值。
      * 如果想要设置选中和非选中图片效果，请使用selector类型的drawable
      * @return

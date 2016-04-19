@@ -184,7 +184,14 @@
             android:launchMode="singleTop"
             android:screenOrientation="portrait"
             android:theme="@style/Aliwx_ContentOverlay_default"
-            android:windowSoftInputMode="adjustPan" /> <!-- 漫游密码输入，三方用户不需要这个Activity -->
+            android:windowSoftInputMode="adjustPan" /> <!-- 反馈窗口 -->
+        <activity
+            android:name="com.alibaba.mobileim.ui.FeedbackActvity"
+            android:configChanges="keyboardHidden|orientation"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait"
+            android:theme="@style/Aliwx_Theme.Translucent"
+            android:windowSoftInputMode="stateHidden|adjustResize" /> <!-- 漫游密码输入，三方用户不需要这个Activity -->
         <activity
             android:name="com.alibaba.mobileim.kit.CloudPwdSettingHintActivity"
             android:configChanges="keyboardHidden|orientation"
@@ -203,6 +210,9 @@
             android:launchMode="singleInstance"
             android:process=":TcmsService"
             android:theme="@android:style/Theme.Translucent" />
+        <activity
+            android:name="com.alibaba.wxlib.util.RequestPermissionActivity"
+            android:theme="@style/Aliwx_Theme.Translucent" />
     </application>
 
 </manifest>

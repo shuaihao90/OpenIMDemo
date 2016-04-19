@@ -31,6 +31,7 @@ import android.widget.Toast;
 import com.alibaba.mobileim.YWIMKit;
 import com.alibaba.mobileim.aop.Pointcut;
 import com.alibaba.mobileim.aop.custom.IMChattingPageUI;
+import com.alibaba.mobileim.channel.IMChannel;
 import com.alibaba.mobileim.channel.constant.YWProfileSettingsConstants;
 import com.alibaba.mobileim.channel.event.IWxCallback;
 import com.alibaba.mobileim.channel.util.AccountUtils;
@@ -47,6 +48,7 @@ import com.alibaba.mobileim.kit.chat.presenter.ChattingDetailPresenter;
 import com.alibaba.mobileim.kit.common.IMUtility;
 import com.alibaba.mobileim.lib.presenter.conversation.TribeConversation;
 import com.alibaba.mobileim.ui.atmessage.AtMsgListActivity;
+import com.alibaba.mobileim.utility.IMPrefsTools;
 import com.alibaba.mobileim.utility.YWIMImageUtils;
 import com.alibaba.openIMUIDemo.R;
 import com.taobao.openimui.tribe.TribeConstants;
@@ -385,6 +387,11 @@ public class ChattingUICustomSample extends IMChattingPageUI {
                 }
             });
             btn.setVisibility(View.VISIBLE);
+
+            String feedbackAccount = IMPrefsTools.getStringPrefs(IMChannel.getApplication(), IMPrefsTools.FEEDBACK_ACCOUNT, "");
+            if (!TextUtils.isEmpty(feedbackAccount) && feedbackAccount.equals(AccountUtils.getShortUserID(conversation.getConversationId()))) {
+                btn.setVisibility(View.GONE);
+            }
         }
 
         //群会话则显示@图标

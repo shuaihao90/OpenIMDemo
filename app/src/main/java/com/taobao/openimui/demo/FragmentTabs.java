@@ -14,22 +14,15 @@ import android.view.WindowManager;
 import android.widget.TabHost;
 import android.widget.TextView;
 
-import com.alibaba.mobileim.YWAPI;
-import com.alibaba.mobileim.YWChannel;
 import com.alibaba.mobileim.YWIMKit;
 import com.alibaba.mobileim.channel.util.WxLog;
 import com.alibaba.mobileim.channel.util.YWLog;
-import com.alibaba.mobileim.contact.IYWContact;
-import com.alibaba.mobileim.contact.IYWContactCacheUpdateListener;
-import com.alibaba.mobileim.contact.IYWContactOperateNotifyListener;
 import com.alibaba.mobileim.conversation.IYWConversationService;
 import com.alibaba.mobileim.conversation.IYWConversationUnreadChangeListener;
 import com.alibaba.mobileim.conversation.IYWMessageLifeCycleListener;
 import com.alibaba.mobileim.conversation.IYWSendMessageToContactInBlackListListener;
 import com.alibaba.mobileim.conversation.YWConversation;
 import com.alibaba.mobileim.conversation.YWConversationType;
-import com.alibaba.mobileim.conversation.YWCustomConversationBody;
-import com.alibaba.mobileim.conversation.YWCustomConversationUpdateModel;
 import com.alibaba.mobileim.conversation.YWMessage;
 import com.alibaba.mobileim.conversation.YWMessageChannel;
 import com.alibaba.mobileim.conversation.YWMessageType;
@@ -44,7 +37,6 @@ import com.taobao.openimui.sample.CustomConversationHelper;
 import com.taobao.openimui.sample.LoginSampleHelper;
 import com.taobao.openimui.tribe.TribeConstants;
 
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -86,8 +78,6 @@ public class FragmentTabs extends FragmentActivity {
 
     private IYWMessageLifeCycleListener mMessageLifeCycleListener;
     private IYWSendMessageToContactInBlackListListener mSendMessageToContactInBlackListListener;
-    private IYWContactOperateNotifyListener mContactOperateNotifyListener;
-    private IYWContactCacheUpdateListener mContactCacheUpdateListener;
     private Context mContext;
 
     @Override
@@ -121,6 +111,7 @@ public class FragmentTabs extends FragmentActivity {
         mTabHost.setOnTabChangedListener(listener);
         listener.onTabChanged(TAB_MESSAGE);
 
+
     }
 
     public static final String SYSTEM_TRIBE_CONVERSATION="sysTribe";
@@ -141,10 +132,6 @@ public class FragmentTabs extends FragmentActivity {
     private void initListeners(){
         //初始化并添加会话变更监听
         initConversationServiceAndListener();
-        //初始化联系人相关的监听
-        initContactListeners();
-        //添加联系人相关的监听
-        addContactListeners();
         //初始化并添加群变更监听
         addTribeChangeListener();
         //初始化自定义会话
@@ -256,135 +243,11 @@ public class FragmentTabs extends FragmentActivity {
         };
     }
 
-    private void addContactListeners(){
-        if(mIMKit!=null){
-            if(mContactOperateNotifyListener!=null)
-            mIMKit.getContactService().addContactOperateNotifyListener(mContactOperateNotifyListener);
-            if(mContactCacheUpdateListener!=null)
-            mIMKit.getContactService().addContactCacheUpdateListener(mContactCacheUpdateListener);
-
-        }
-    }
-
-    private void removeContactListeners(){
-        if(mIMKit!=null){
-            if(mContactOperateNotifyListener!=null)
-                mIMKit.getContactService().removeContactOperateNotifyListener(mContactOperateNotifyListener);
-            if(mContactCacheUpdateListener!=null)
-                mIMKit.getContactService().removeContactCacheUpdateListener(mContactCacheUpdateListener);
-
-        }
-    }
 
 
 
-    /**
-     * 联系人相关操作通知回调，SDK使用方可以实现此接口来接收联系人操作通知的监听
-     * 所有方法都在UI线程调用
-     * SDK会自动处理这些事件，一般情况下，用户不需要监听这个事件
-     * @author shuheng
-     *
-     */
-    private void initContactListeners(){
-
-         mContactOperateNotifyListener = new IYWContactOperateNotifyListener(){
-
-             /**
-              * 用户请求加你为好友
-              * todo 该回调在UI线程回调 ，请勿做太重的操作
-              *
-              * @param contact 用户的信息
-              * @param message 附带的备注
-              */
-             @Override
-             public void onVerifyAddRequest(IYWContact contact, String message) {
-                 YWLog.d(TAG, contact.getUserId()+"用户请求加你为好友");
-                 Notification.showToastMsg(mContext, contact.getUserId()+"用户请求加你为好友");
-
-//                 //增加未读数的显示
-//                 YWConversation conversation = mIMKit.getConversationService().getCustomConversationByConversationId(SYSTEM_FRIEND_REQ_CONVERSATION);
-//                 if ( conversation!= null) {
-//                     YWCustomConversationUpdateModel model = new YWCustomConversationUpdateModel();
-//                     model.setIdentity(SYSTEM_FRIEND_REQ_CONVERSATION);
-//                     model.setLastestTime(new Date().getTime());
-//                     model.setUnreadCount(conversation.getUnreadCount() + 1);
-//                     if(conversation.getConversationBody() instanceof YWCustomConversationBody){
-//                         model.setExtraData(((YWCustomConversationBody)conversation.getConversationBody()).getExtraData());
-//                     }
-//                     if(mConversationService!=null)
-//                     mConversationService.updateOrCreateCustomConversation(model);
-//                 }
-
-             }
-
-             /**
-              * 用户接受了你的好友请求
-              * todo 该回调在UI线程回调 ，请勿做太重的操作
-              *
-              * @param contact 用户的信息
-              */
-             @Override
-             public void onAcceptVerifyRequest(IYWContact contact) {
-                 YWLog.d(TAG,contact.getUserId()+"用户接受了你的好友请求");
-                 Notification.showToastMsg(mContext,contact.getUserId()+"用户接受了你的好友请求");
-             }
-             /**
-              * 用户拒绝了你的好友请求
-              * todo 该回调在UI线程回调 ，请勿做太重的操作
-              * @param  contact 用户的信息
-              */
-             @Override
-             public void onDenyVerifyRequest(IYWContact contact) {
-                 YWLog.d(TAG,contact.getUserId()+"用户拒绝了你的好友请求");
-                 Notification.showToastMsg(mContext,contact.getUserId()+"用户拒绝了你的好友请求");
-             }
-
-             /**
-              * 云旺服务端（或其它终端）进行了好友添加操作
-              * todo 该回调在UI线程回调 ，请勿做太重的操作
-              *
-              * @param contact 用户的信息
-              */
-             @Override
-             public void onSyncAddOKNotify(IYWContact contact) {
-                 YWLog.d(TAG,"云旺服务端（或其它终端）进行了好友添加操作对"+contact.getUserId());
-                 Notification.showToastMsg(mContext,"云旺服务端（或其它终端）进行了好友添加操作对"+contact.getUserId());
-
-             }
-
-             /**
-              * 用户从好友名单删除了您
-              * todo 该回调在UI线程回调 ，请勿做太重的操作
-              *
-              * @param contact 用户的信息
-              */
-             @Override
-             public void onDeleteOKNotify(IYWContact contact) {
-                 YWLog.d(TAG,contact.getUserId()+"用户从好友名单删除了您");
-                 Notification.showToastMsg(mContext,contact.getUserId()+"用户从好友名单删除了您");
-             }
-         };
 
 
-        mContactCacheUpdateListener=new IYWContactCacheUpdateListener(){
-
-            /**
-             * 好友缓存发生变化(联系人备注修改、联系人新增和减少等)，可以刷新使用联系人缓存的UI
-             * todo 该回调在UI线程回调 ，请勿做太重的操作
-             *
-             * @param currentUserid                 当前登录账户
-             * @param currentAppkey                 当前Appkey
-             */
-            @Override
-            public void onFriendCacheUpdate(String currentUserid, String currentAppkey) {
-                YWLog.d(TAG,"好友缓存发生变化");
-                Notification.showToastMsg(mContext, "好友缓存发生变化");
-
-            }
-
-        };
-
-    }
     private void addTribeChangeListener(){
         mTribeChangedListener = new IYWTribeChangeListener() {
             @Override
@@ -463,9 +326,10 @@ public class FragmentTabs extends FragmentActivity {
                     msgType = "自定义消息";
                 }
 
-                //设置APNS Push，如果开发者需要对APNS Push进行定制可以调用message.setPushInfo(YWPushInfo)方法进行设置，如果不需要APNS Push定制则不需要调用message.setPushInfo(YWPushInfo)方法
-                YWPushInfo pushInfo = new YWPushInfo(1, cvsType + msgType, "dingdong", "我是自定义数据");
-                message.setPushInfo(pushInfo);
+                //TODO 设置APNS Push，如果开发者需要对APNS Push进行定制可以调用message.setPushInfo(YWPushInfo)方法进行设置，如果不需要APNS Push定制则不需要调用message.setPushInfo(YWPushInfo)方法
+                //TODO Demo默认发送消息不需要APNS Push定制,所以注释掉以下两行代码
+//                YWPushInfo pushInfo = new YWPushInfo(1, cvsType + msgType, "dingdong", "我是自定义数据");
+//                message.setPushInfo(pushInfo);
 
                 //根据消息类型对消息进行修改，切记这里只是示例，具体怎样对消息进行修改开发者可以根据自己的需求进行处理
                 if (message.getSubType() == YWMessage.SUB_MSG_TYPE.IM_TEXT){
@@ -686,8 +550,6 @@ public class FragmentTabs extends FragmentActivity {
         if (mMorePressed != null) {
             mMorePressed.setCallback(null);
         }
-        //移除联系人相关的监听
-        removeContactListeners();
     }
 
     @Override

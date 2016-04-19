@@ -16,12 +16,11 @@
 
     <ProgressBar
         android:id="@+id/download_audio_progress"
-        android:layout_width="24dip"
-        android:layout_height="24dip"
-        android:layout_alignParentLeft="true"
+        android:layout_width="15dip"
+        android:layout_height="15dip"
+        android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
         android:layout_gravity="center_vertical"
-        android:layout_marginLeft="5dip"
         android:indeterminate="true"
         android:indeterminateDrawable="@drawable/aliwx_my_progress"
         android:visibility="gone" />

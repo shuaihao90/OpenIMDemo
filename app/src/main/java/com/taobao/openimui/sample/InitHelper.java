@@ -2,9 +2,13 @@ package com.taobao.openimui.sample;
 
 import android.app.Application;
 
+import com.alibaba.mobileim.FeedbackAPI;
 import com.alibaba.mobileim.YWAPI;
 import com.alibaba.mobileim.contact.IYWContactService;
 import com.alibaba.wxlib.util.SysUtil;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 /**
  * SDK 全局初始化
@@ -35,5 +39,20 @@ public class InitHelper {
 			YWAPI.enableSDKLogOutput(true);
 
 		}
+	}
+
+	public static void initFeedBack(Application application) {
+		JSONObject jsonObject=new JSONObject();
+		try {
+			jsonObject.put("loginTime","登录时间");
+			jsonObject.put("visitPath","登陆，关于，反馈");
+
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		FeedbackAPI.initFeedback(application, YWAPI.getAppKey(),  "反馈", null);
+		FeedbackAPI.setAppExtInfo(jsonObject);
+
+		FeedbackAPI.setCustomContact("",false);
 	}
 }

@@ -62,6 +62,20 @@
                     android:drawableRight="@drawable/aliwx_arrow"
                     android:text="联系我们" />
 
+
+                <View
+                    android:layout_width="fill_parent"
+                    android:layout_height="1px"
+                    android:background="@color/more_line_color" />
+
+                <TextView
+                    android:id="@+id/more4"
+                    style="@style/more_item_style"
+                    android:layout_width="fill_parent"
+                    android:layout_height="@dimen/more_item_height"
+                    android:drawableRight="@drawable/aliwx_arrow"
+                    android:text="反        馈" />
+
                 <RelativeLayout
                     android:id="@+id/setting_sound_layout"
                     style="@style/more_item_style"

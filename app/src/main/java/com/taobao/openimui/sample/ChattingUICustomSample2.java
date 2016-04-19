@@ -25,6 +25,7 @@ import android.widget.Toast;
 import com.alibaba.mobileim.YWIMKit;
 import com.alibaba.mobileim.aop.Pointcut;
 import com.alibaba.mobileim.aop.custom.IMChattingPageUI;
+import com.alibaba.mobileim.channel.IMChannel;
 import com.alibaba.mobileim.channel.util.AccountUtils;
 import com.alibaba.mobileim.contact.IYWContact;
 import com.alibaba.mobileim.conversation.YWConversation;
@@ -36,6 +37,7 @@ import com.alibaba.mobileim.kit.chat.presenter.ChattingDetailPresenter;
 import com.alibaba.mobileim.kit.common.IMUtility;
 import com.alibaba.mobileim.lib.presenter.conversation.TribeConversation;
 import com.alibaba.mobileim.ui.atmessage.AtMsgListActivity;
+import com.alibaba.mobileim.utility.IMPrefsTools;
 import com.alibaba.mobileim.utility.YWIMImageUtils;
 import com.alibaba.openIMUIDemo.R;
 import com.taobao.openimui.tribe.TribeConstants;
@@ -246,6 +248,8 @@ public class ChattingUICustomSample2 extends IMChattingPageUI {
         View view = inflater.inflate(R.layout.demo_custom_chatting_title, new RelativeLayout(context),false);
         view.setBackgroundColor(Color.parseColor("#00b4ff"));
         TextView textView = (TextView) view.findViewById(R.id.title);
+        ImageView btn = (ImageView) view.findViewById(R.id.title_button);
+
         String title = null;
         if (conversation.getConversationType() == YWConversationType.P2P) {
             YWP2PConversationBody conversationBody = (YWP2PConversationBody) conversation
@@ -294,7 +298,6 @@ public class ChattingUICustomSample2 extends IMChattingPageUI {
             }
         });
 
-        ImageView btn = (ImageView) view.findViewById(R.id.title_button);
         if (conversation.getConversationType() == YWConversationType.Tribe) {
             btn.setOnClickListener(new View.OnClickListener() {
                 @Override
